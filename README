@@ -1,0 +1,42 @@
+FOSSology+SPDX
+
+Copyright (C) 2013 University of Nebraska at Omaha.
+
+
+About
+=====
+The FOSSology+SPDX Project is a Free Open Source Software (FOSS) project 
+built from FOSSology project. The goals are integrating the FOSSology output 
+with the SPDX standard. Existing modules include creating an SPDX file 
+in TAG format, licenses/copyrights information in NOTICE format. 
+In addition to this document there is much more
+information available on the website
+
+  https://sites.google.com/site/fossologyunospdx/
+
+Installation
+============
+FOSSologySPDX is available for  multiple versions of Linux. 
+There are package installation with fossology project 
+which is available from the fossology.org site.  See 
+
+  http://fossology.org/releases
+  
+Both RPM and Debian based systems are available.
+
+You can also separately install FOSSologySPDX manually from the source tar archive:
+ 
+  https://sourceforge.net/projects/fossologyspdx/files/fossology/1.0/
+
+Please see the file INSTALL within the FOSSologySPDX source distribution for 
+instructions.
+
+
+Support
+=======
+Mailing lists, FAQs, Release Notes, and other useful info is available
+by clicking the documentation tab on the project website. We encourage 
+all users to join the mailing list and participate in discussions.
+There is also a #FOSSology+SPDX IRC channel on the freenode IRC network if
+you'd like to talk to other FOSSologySPDX users and developers.
+

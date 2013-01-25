@@ -1,0 +1,33 @@
+FOSSologySPDX Copyright and Licensing
+=================================
+Copyright (C) 2013 University of Nebraska at Omaha and others.
+
+The original FOSSologySPDX source code and all associated documentation
+including these web pages are Copyright (C) 2013 University of Nebraska at Omaha.
+
+Any modifications or additions to source code or documentation
+contributed to the FOSSologySPDX project from outside of 
+University of Nebraska at Omaha or its affiliates are 
+Copyright (C) the contributor, and should be noted as such 
+in the comments section of the modified file(s).
+
+Licenses
+
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the Apache License as published by
+    the Apache Software Foundation; version 2.0 of the License
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    Apache License, Version 2.0 for more details.
+
+    You should have received a copy of the Apache License, Version 2.0 along
+    with this program; if not, contact to the Apache Software Foundation.
+
+Exception:
+All of the FOSSologySPDX source code is licensed under the terms of 
+the Apache License, Version 2.0, with the following exceptions:
+
+Please see the files COPYING and COPYING.LGPL included with this
+software for the full text of these licenses.

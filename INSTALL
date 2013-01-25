@@ -1,0 +1,47 @@
+FOSSologySPDX Installation Documentation
+
+Introduction
+============
+This document is designed to help you get FOSSologySPDX installed and ready
+to use. Its intended audience is the system administrator who wants to
+quickly get a local FOSSologySPDX instance up and running.
+
+This document is arranged as follows:
+
+Section 1 - Installation Instructions
+Section 2 - After Installation 
+
+Section 1 - Installation Instructions
+===========================================
+(In examples, # is as root, $ is mortal)
+Before you FOSSologySPDX, you need install FOSSology firstly. 
+You can find the discussion on how to install or use the FOSSology software,
+please see the Documentation, available at 
+http://www.fossology.org/projects/fossology/wiki/User_Documentation. 
+
+1. If you have any old FOSSologySPDX installs you want to remove from the
+   system you can run
+   # make uninstall
+   If you have an existing install that you want to transition, be sure to
+   back up your PHP pages, repository, database, and config files before proceeding.
+2. Install FOSSologySPDX
+   # make install
+
+You're done, point your web browser at the new install
+(http://yourhostname/repo/) and start using FOSSologySPDX!
+
+
+Section 3 - After Installation
+==============================
+Congratulations, FOSSologySPDX is now installed!
+
+You can now point your web browser at the new install
+(http://yourhostname/repo/) and start using FOSSology!
+
+You should login to FOSSology with the default fossy/fossy user and
+password and:
+1) create yourself a user with administrative privileges
+2) change the default password for user fossy
+3) customize (if desired) your FOSSology website using the directions at 
+http://www.fossology.org/projects/fossology/wiki/Config-How_to_Configure_the_FOSSology_site
+4) generate SPDX file under menu [SPDX]
