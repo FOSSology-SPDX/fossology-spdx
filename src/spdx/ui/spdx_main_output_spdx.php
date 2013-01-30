@@ -124,7 +124,6 @@ function Spdx_main_output_spdx() {
 			  	if ($currentPackage != $packageLrrow['uploadtree_pk'])
 			  	{
 			  		$currentPackage = $packageLrrow['uploadtree_pk'];
-			  		$packageLicenseConcludedArr[$currentPackage] = "";
 			  	}
 			  	$pLicenseID = $packageLrrow['rf_shortname'];
 			  	foreach ($lrArr as $lr)
