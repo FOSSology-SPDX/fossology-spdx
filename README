@@ -26,10 +26,10 @@ Both RPM and Debian based systems are available.
 
 You can also separately install FOSSologySPDX manually from the source:
  
-  https://svn.code.sf.net/p/fossologyspdx/code/trunk/fossologyspdx/
+  https://github.com/spdx-tools/fossology-spdx
 
 Download the source from its branch:
-svn checkout http://svn.code.sf.net/p/fossologyspdx/code/trunk/ fossologyspdx-code  
+git clone https://github.com/spdx-tools/fossology-spdx.git  
 
 Please see the file INSTALL within the FOSSologySPDX source distribution for 
 instructions.
