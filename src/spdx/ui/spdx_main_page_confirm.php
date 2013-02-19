@@ -124,13 +124,8 @@ class spdx_main_page_confirm extends FO_Plugin
         $V.= "<td><select id='spdxOutputType'><option value='tag'>SPDX-TAG</option><option value='notice'>NOTICE-Format1</option><option value='notice2'>NOTICE-Format2</option></select></td>\n";
         $V.= "</tr>\n";
         $V.= "</table><P />";
-        /* Get the string of selected packages */
-        if (array_key_exists('packages', $_REQUEST)) {
-	        $ValArr = $_POST['packages'];
-	        $packagePks = join(',',$ValArr);
-	      }
-        else
-        	$packagePks = 0;
+        /* Get selected packages */
+        $packagePks = $_POST['packages'];
         
         $sql = "select max(pkg_name) as name,max(version) as version,max(source_info) as source_info,max(description) as description,max(pkg_filename) as filename,pfile_pk as pfile_fk,pfile_sha1,upload_fk,uploadtree_pk
 							from(
