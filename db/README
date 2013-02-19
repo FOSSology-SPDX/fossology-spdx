@@ -1,0 +1,36 @@
+FOSSology+SPDX
+
+Copyright (C) 2013 University of Nebraska at Omaha.
+
+
+Setting up the database
+=======================
+The FOSSology+SPDX Project is a Free Open Source Software (FOSS) project 
+built from FOSSology project. The SPDX spec items are restored at 
+SPDX tables which are not provided at FOSSology.
+The following table are needed for SPDX modules to save user specific.
+
+TableName					|		Description
+-----------------------------------------------------------------------------------------------------------------------------------------
+spdx_file					|		This table is used for the necessary information for SPDX file such as SPDX version, creator info, etc.
+spdx_package_info			|		This table is used for package level information
+spdx_file_info				|		This table is used for file level information
+spdx_extracted_lic_info		|		This table is used for any detected, declared or concluded licenses that are NOT on the SPDX License List.
+spdx_review_ref				|		This table is used for review information
+spdx_license_list			|		A mapping list between SPDX License List(v1.17) and FOSSology license identifier.
+
+
+Create Table
+============
+Running the following script to create tables in FOSSology database(FOSSology database is a prerequisite)
+spdx_file_create.sql
+spdx_package_info_create.sql
+spdx_file_info_create.sql
+spdx_extracted_lic_info_create.sql
+spdx_review_ref_create.sql
+spdx_license_list_create.sql
+
+Insert records
+==============
+Running the following script to create records in spdx_license_list table(spdx_license_list is a prerequisite)
+spdx_license_list_insert.sql

@@ -14,8 +14,9 @@
  You should have received a copy of the Apache License along
  with this program; if not, contact to the Apache Software Foundation.
 ***********************************************************/
-
-	$fileSuffix = $_GET['fileSuffix'];
+  $fileSuffix = $_GET['fileSuffix'];
+	include('spdx_output_db.php');
+  Spdx_output_tag($fileSuffix);
 	$target_path = iconv("UTF-8","gb2312", dirname(__FILE__).'/../output_file/spdx'.$fileSuffix.'.tag');
 	$filename1 = iconv("UTF-8","gb2312",'spdx.tag');
 	$filename = $target_path;
