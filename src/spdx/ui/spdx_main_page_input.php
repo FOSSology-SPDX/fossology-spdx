@@ -124,18 +124,16 @@ class spdx_main_page_input extends FO_Plugin
         DBCheckResult($result, $sql, __FILE__, __LINE__);
         $text = _("Package(s)");
         $V .= "$text<br>\n";
-        $V .= "<select multiple id='packages' name='packages[]'>\n";
+        $V .= "<select id='packages' name='packages'>\n";
         $selectedPackages = htmlentities(GetParm('packages', PARM_RAW), ENT_QUOTES);
         pg_result_seek($result, 0);
         while ($package = pg_fetch_assoc($result))
         {
         	if (!empty($selectedPackages)){
 	          $Selected = "";
-	          foreach($selectedPackages as $SP){
-	          	if ($package['uploadtree_pk'] == $SP) {
-	          		$Selected = "selected";
-	          		break;
-	          	}
+	          if ($package['uploadtree_pk'] == $selectedPackages)
+	          {
+	          	$Selected = "selected";
 	          }
           }
           $V.= "<option $Selected value='" . $package['uploadtree_pk'] . "'>";
