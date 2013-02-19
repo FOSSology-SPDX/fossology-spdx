@@ -15,6 +15,8 @@
  with this program; if not, contact to the Apache Software Foundation.
 ***********************************************************/
 	$fileSuffix = $_GET['fileSuffix'];
+	include('spdx_output_db.php');
+  Spdx_output_notice($fileSuffix);
 	$target_path = iconv("UTF-8","gb2312", dirname(__FILE__).'/../output_file/NOTICE'.$fileSuffix);
 	$filename1 = iconv("UTF-8","gb2312",'NOTICE');
 	$filename = $target_path;
