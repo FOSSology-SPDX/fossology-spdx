@@ -98,20 +98,21 @@ class spdx_main_page_confirm extends FO_Plugin
         $V.= "$Style<th>$text</th>\n";
         $V.= "<td><input type='hidden' name='creatorOptional2' value='$Val'>$Val</td>\n";
         $V.= "</tr>\n";
-        $Val = htmlentities(GetParm('createdDate', PARM_TEXT), ENT_QUOTES);
+        $ValDate = htmlentities(GetParm('created_Date', PARM_TEXT), ENT_QUOTES);
+        $ValTime = htmlentities(GetParm('created_Time', PARM_TEXT), ENT_QUOTES);
         $text = _("Created Date");
         $V.= "$Style<th>$text</th>\n";
-        $V.= "<td><input type='hidden' name='createdDate' value='$Val'>$Val</td>\n";
+        $V.= "<td><input type='hidden' name='created_Date' value='$ValDate'><input type='hidden' name='created_Time' value='$ValTime'>$ValDate $ValTime</td>\n";
         $V.= "</tr>\n";
         $Val = htmlentities(GetParm('dataLicense', PARM_TEXT), ENT_QUOTES);
         $text = _("Data License");
         $V.= "$Style<th>$text</th>\n";
         $V.= "<td><input type='hidden' name='dataLicense' value='$Val'>$Val</td>\n";
         $V.= "</tr>\n";
-        $Val = htmlentities(GetParm('creatorComments', PARM_TEXT), ENT_QUOTES);
-        $text = _("Creator Comments");
+        $Val = htmlentities(GetParm('creatorComment', PARM_TEXT), ENT_QUOTES);
+        $text = _("Creator Comment");
         $V.= "$Style<th>$text</th>\n";
-        $V.= "<td><input type='hidden' name='creatorComments' value='$Val'><span class='bodySmall'>$Val</span></td>\n";
+        $V.= "<td><input type='hidden' name='creatorComment' value='$Val'><span class='bodySmall'>$Val</span></td>\n";
         $V.= "</tr>\n";
         $Val = htmlentities(GetParm('documentComment', PARM_TEXT), ENT_QUOTES);
         $text = _("Document Comment");
@@ -129,17 +130,31 @@ class spdx_main_page_confirm extends FO_Plugin
 	        $packagePks = join(',',$ValArr);
 	      }
         else
-        $packagePks = '';
+        	$packagePks = 0;
         
-        $sql = "select max(pkg_name) as pkg_name,max(version) as version,max(source_info) as source_info,max(description) as description,max(pkg_filename) as pkg_filename,pfile_pk,pfile_sha1,upload_fk,uploadtree_pk
+        $sql = "select max(pkg_name) as name,max(version) as version,max(source_info) as source_info,max(description) as description,max(pkg_filename) as filename,pfile_pk as pfile_fk,pfile_sha1,upload_fk,uploadtree_pk
 							from(
 							select pkg_name,version,source_rpm as source_info,description,source_rpm as pkg_filename,pfile_pk,pfile_sha1,upload_fk,uploadtree_pk from pkg_rpm,pfile,uploadtree where uploadtree_pk in($packagePks) and uploadtree.pfile_fk = pfile_pk and pfile_pk= pkg_rpm.pfile_fk UNION 
 							select pkg_name,version,'' as source_info,description,source as pkg_filename,pfile_pk,pfile_sha1,upload_fk,uploadtree_pk from pkg_deb,pfile,uploadtree where uploadtree_pk in($packagePks) and uploadtree.pfile_fk = pfile_pk and pfile_pk = pkg_deb.pfile_fk UNION
 							select upload_filename as pkg_name, '' as version, '' as source_info,upload_desc as description,upload_origin as pkg_filename,pfile_pk,pfile_sha1,upload_fk,uploadtree_pk from pfile,uploadtree,upload where uploadtree_pk in($packagePks) and uploadtree.pfile_fk = pfile_pk and uploadtree.upload_fk = upload_pk
 							) T 
-							group by pfile_pk,pfile_sha1,upload_fk,uploadtree_pk";
-        $result = pg_query($PG_CONN, $sql);
+							group by pfile_fk,pfile_sha1,upload_fk,uploadtree_pk";
+				$result = pg_query($PG_CONN, $sql);
         DBCheckResult($result, $sql, __FILE__, __LINE__);
+        $_SESSION['spdx_pkg']=$result;
+        $_SESSION['packagePks']=$packagePks;
+        Spdx_insert_update_spdx();
+        $sqlPackage = "select * from spdx_package_info where verificationcode<> '' and spdx_fk = ".$_SESSION['spdxId'];
+        $resultPackage = pg_query($PG_CONN, $sqlPackage);
+        DBCheckResult($resultPackage, $sqlPackage, __FILE__, __LINE__);
+        if (pg_num_rows($resultPackage) > 0){
+        	$result = $resultPackage;
+        }
+        else
+        {
+	        $result = pg_query($PG_CONN, $sql);
+	        DBCheckResult($result, $sql, __FILE__, __LINE__);
+	      }
         if (pg_num_rows($result) > 0){
         	$text = _("Package(s)");
 	        $V .= "$text<br>\n";
@@ -148,20 +163,16 @@ class spdx_main_page_confirm extends FO_Plugin
 	        pg_result_seek($result, 0);
 	        while ($package = pg_fetch_assoc($result))
 	        {
-	        	$V.= "<tr><td align='left'>" . $package['pkg_name'] . "</td><td align='left'>" . $package['version'] . "</td><td align='left'>" . $package['source_info'] . "</td><td align='left'style='overflow: hidden;'>" . $package['description'] . "</td><td>detail/edit</td></tr>";
+	        	$V.= "<tr><td align='left'>" . $package['name'] . "</td><td align='left'>" . $package['version'] . "</td><td align='left'>" . $package['source_info'] . "</td><td align='left'style='overflow: hidden;'>" . $package['description'] . "</td><td><a href=".$Uri."?mod=spdx_packageInfoEdit_input&spdxId=" . $_SESSION['spdxId'] . "&pfile=" . $package['pfile_fk'] . " target='_blank')>detail/edit</a></td></tr>";
 	        }
 	        $V.= "</tbody></table><br>";
-	        pg_result_seek($result, 0);
 	      }
+	      pg_free_result($result);
 	      $V.= "\n<button type='button' onclick='history.back();'>Back</button>\n";
         $text = _("Create");
         $V.= "\n<button type='button' onclick='outputspdx()'>Create</button>\n";
         $V.= "</form>\n";
-        $EXEC = 1;
-        //include('spdx_main_output_spdx.php');
-        $_SESSION['spdx_pkg']=$result;
-        $_SESSION['packagePks']=$packagePks;
-        Spdx_main_output_spdx();
+        
         break;
     case "Text":
       break;

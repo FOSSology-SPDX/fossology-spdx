@@ -29,7 +29,7 @@ You can also separately install FOSSologySPDX manually from the source:
   https://github.com/spdx-tools/fossology-spdx
 
 Download the source from its branch:
-git clone https://github.com/spdx-tools/fossology-spdx.git  
+git clone https://github.com/spdx-tools/fossology-spdx.git
 
 Please see the file INSTALL within the FOSSologySPDX source distribution for 
 instructions.
@@ -39,8 +39,7 @@ Support
 =======
 Mailing lists, FAQs, Release Notes, and other useful info is available
 by clicking the documentation tab on the project website. We encourage 
-all users to join the mailing list(fossologyspdx-tech@googlegroups.com)
-and participate in discussions.
+all users to join the mailing list and participate in discussions.
 There is also a #FOSSology+SPDX IRC channel on the freenode IRC network if
 you'd like to talk to other FOSSologySPDX users and developers.
 

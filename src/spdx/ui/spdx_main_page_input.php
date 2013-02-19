@@ -90,21 +90,23 @@ class spdx_main_page_input extends FO_Plugin
         $V.= "</tr>\n";
         $Val = htmlentities(GetParm('createdDate', PARM_TEXT), ENT_QUOTES);
         if( empty($Val)) {
-        	$Val = Date("Y-m-d g:i:s");
+        	//$Val = Date("Y-m-d g:i:s");
+        	$ValDate = Date("Y-m-d");
+        	$ValTime = Date("H:i:s");
         }
         $text = _("Created Date");
         $V.= "$Style<th>$text</th>\n";
-        $V.= "<td><input type='hidden' name='createdDate' value='$Val'>$Val</td>\n";
+        $V.= "<td><input type='hidden' name='created_Date' value='$ValDate'><input type='hidden' name='created_Time' value='$ValTime'>$ValDate $ValTime</td>\n";
         $V.= "</tr>\n";
-        $Val = "http://spdx.org/licenses/CC0-1.0";
+        $Val = "CC0-1.0";
         $text = _("Data License");
         $V.= "$Style<th>$text</th>\n";
         $V.= "<td><input type='hidden' name='dataLicense' value='$Val'>$Val</td>\n";
         $V.= "</tr>\n";
-        $Val = htmlentities(GetParm('creatorComments', PARM_TEXT), ENT_QUOTES);
-        $text = _("Creator Comments");
+        $Val = htmlentities(GetParm('creatorComment', PARM_TEXT), ENT_QUOTES);
+        $text = _("Creator Comment");
         $V.= "$Style<th>$text</th>\n";
-        $V.= "<td><input type='text' name='creatorComments' value='$Val' size=60></td>\n";
+        $V.= "<td><input type='text' name='creatorComment' value='$Val' size=60></td>\n";
         $V.= "</tr>\n";
         $Val = htmlentities(GetParm('documentComment', PARM_TEXT), ENT_QUOTES);
         $text = _("Document Comment");
