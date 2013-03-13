@@ -55,6 +55,31 @@ function Spdx_update_package($SpdxId,$PackageInfoPk) {
     pg_free_result($resultUpdateSPDX);
 
 }
+
+function Spdx_update_file($SpdxId,$FileInfoPk){
+		global $PG_CONN;
+		$filename = htmlentities(GetParm('filename',PARM_TEXT),ENT_QUOTES);
+		$filetype = htmlentities(GetParm('filetype',PARM_TEXT),ENT_QUOTES);
+		$checksum = htmlentities(GetParm('checksum',PARM_TEXT),ENT_QUOTES);
+		$license_concluded = htmlentities(GetParm('licenseConcluded',PARM_TEXT),ENT_QUOTES);
+		$license_info_in_file = htmlentities(GetParm('licenseInfoInFile',PARM_TEXT),ENT_QUOTES);
+		$license_comment = htmlentities(GetParm('licenseComment',PARM_TEXT),ENT_QUOTES);
+		$file_copyright_text = htmlentities(GetParm('fileCopyrightText',PARM_TEXT),ENT_QUOTES);
+		$artifact_of_project = htmlentities(GetParm('artifactOfProject',PARM_TEXT),ENT_QUOTES);
+		$artifact_of_homepage = htmlentities(GetParm('artifactOfHomepage',PARM_TEXT),ENT_QUOTES);
+		$artifact_of_url = htmlentities(GetParm('artifactOfUrl',PARM_TEXT),ENT_QUOTES);
+		$file_comment = htmlentities(GetParm('fileComment',PARM_TEXT),ENT_QUOTES);
+		
+		// update spdx_file_info table
+		$sql = "update spdx_file_info
+		            set (filename,filetype,checksum,license_concluded,license_info_in_file,license_comment,file_copyright_text,artifact_of_project,artifact_of_homepage,artifact_of_url,file_comment)
+		            = ('$filename','$filetype','$checksum','$license_concluded','$license_info_in_file','$license_comment','$file_copyright_text','$artifact_of_project','$artifact_of_homepage','$artifact_of_url','$file_comment')
+		            where spdx_fk = $SpdxId and file_info_pk = $FileInfoPk";
+		            //echo "sql_update: ".$sql."<br>";
+		$resultUpdatePackage = pg_query($PG_CONN, $sql);
+    DBCheckResult($resultUpdatePackage, $sql, __FILE__, __LINE__);
+    pg_free_result($resultUpdatePackage);
+}
 function Spdx_insert_update_spdx() {
 		global $PG_CONN;
 		$NOASSERTION = 'NOASSERTION';

@@ -168,7 +168,7 @@ class spdx_packageInfoEdit_confirm extends FO_Plugin
 	      $filelistTest = _("File List");
 	      // file info edit
 		  	$filelistURI = "";
-	      $V .= "$text $filelistTest\n";
+	      $V .= "$text <a href=\"".$Uri."?mod=spdx_fileInfoEdit_list&spdxId=$Val_SpdxId&packageInfoPk=$Val_PackageInfoPk\" target='_blank')>$filelistTest</a>\n";
 	      $V.= "\n<button type='button' onclick='history.back();'>Back</button>\n";
         $text = _("Update");
         $V.= "\n<input type='submit' value='$text'>\n";
