@@ -154,11 +154,13 @@ class spdx_main_page_confirm extends FO_Plugin
         	$text = _("Package(s)");
 	        $V .= "$text<br>\n";
 	        $V.= "<table border='1' width='100%'>";
-	        $V.= "<tbody><tr><th width='15%'>Name</th><th width='20%'>Version</th><th width='20%'>Source Info</th><th width='40%'>Description</th><th>&nbsp;</th></tr>";
+	        $V.= "<tbody><tr><th width='15%'>Name</th><th width='20%'>Version</th><th width='20%'>Source Info</th><th width='40%'>Description</th><th>Package Edit</th><th>File Edit</th></tr>";
 	        pg_result_seek($result, 0);
 	        while ($package = pg_fetch_assoc($result))
 	        {
-	        	$V.= "<tr><td align='left'>" . $package['name'] . "</td><td align='left'>" . $package['version'] . "</td><td align='left'>" . $package['source_info'] . "</td><td align='left'style='overflow: hidden;'>" . $package['description'] . "</td><td><a href=".$Uri."?mod=spdx_packageInfoEdit_input&spdxId=" . $_SESSION['spdxId'] . "&pfile=" . $package['pfile_fk'] . " target='_blank')>detail/edit</a></td></tr>";
+	        	$V .= "<tr><td align='left'>" . $package['name'] . "</td><td align='left'>" . $package['version'] . "</td><td align='left'>" . $package['source_info'] . "</td><td align='left'style='overflow: hidden;'>" . $package['description'] . "</td><td><a href=".$Uri."?mod=spdx_packageInfoEdit_input&spdxId=" . $_SESSION['spdxId'] . "&pfile=" . $package['pfile_fk'] . " target='_blank')>Detail/Edit Package</a></td>";
+				$V .= "<td><a href=\"".$Uri."?mod=spdx_fileInfoEdit_list&spdxId=".$_SESSION['spdxId']."&packageInfoPk=" . $package['package_info_pk'] . "\" target='_blank')>Detail/Edit Files</a></td>\n";
+				$V .= "</tr>";
 	        }
 	        $V.= "</tbody></table><br>";
 	      }
@@ -167,7 +169,7 @@ class spdx_main_page_confirm extends FO_Plugin
         $text = _("Create");
         $V.= "\n<button type='button' onclick='outputspdx()'>Create</button>\n";
         $V.= "</form>\n";
-        
+         
         break;
     case "Text":
       break;

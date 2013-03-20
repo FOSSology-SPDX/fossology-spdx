@@ -143,6 +143,8 @@ class spdx_packageInfoEdit_confirm extends FO_Plugin
         $V.= "</tr>\n";
         $V.= "</table><P />";
         
+		
+		$V .= "<a href=\"".$Uri."?mod=spdx_fileInfoEdit_list&spdxId=$Val_SpdxId&packageInfoPk=$Val_PackageInfoPk\" target='_blank')>Detail/Edit Files</a></br>\n";
         /* Get extracted lic info of the package */
         
         $sql = "select identifier, license_ref.rf_text as extractedtext, licensename, cross_ref_url, lic_comment, rf_text from spdx_extracted_lic_info, license_ref

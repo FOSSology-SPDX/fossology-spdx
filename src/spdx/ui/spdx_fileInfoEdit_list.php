@@ -96,7 +96,7 @@ class spdx_fileInfoEdit_list extends FO_Plugin
 	        $V.= "</tbody></table><br>";
 	      }
 	    pg_free_result($result);
-	    $V.= "\n<button type='button' onclick='history.back();'>Back</button>\n";
+	    $V.= "\n<button type='button' onclick='window.close()'>Close</button>\n";
         $V.= "</form>\n";
         
         break;

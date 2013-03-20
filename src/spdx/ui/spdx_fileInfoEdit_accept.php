@@ -49,9 +49,9 @@ class spdx_fileInfoEdit_accept extends FO_Plugin
 				
 				
         /* Build HTML form */
-        $V.= "<form name='packageEditAny' method='POST'>\n"; // no url = this url
+        $V.= "<form name='fileInfoList' method='POST' action='" . $Uri . "?mod=spdx_fileInfoEdit_list'>\n"; // no url = this url
         $V.= "<P />\n";
-        $text = _("Package Info has been updated.");
+        $text = _("File Info has been updated.");
         $V.= "$text<P />\n";
 
         $Style = "<tr><td colspan=3 style='background:black;'></td></tr><tr>";
@@ -147,7 +147,7 @@ class spdx_fileInfoEdit_accept extends FO_Plugin
 			
 			$V.= "</tbody></table>\n";
 	      $V.= "\n<button type='button' onclick='window.close()'>Close</button>\n";
-        $V.= "</form>\n";
+			$V.= "</form>\n";
         break;
     case "Text":
       break;
