@@ -47,18 +47,6 @@ class spdx_fileInfoEdit_confirm extends FO_Plugin
         $Val_fileInfoPk = htmlentities(GetParm('fileInfoPk',PARM_TEXT),ENT_QUOTES);
 		/* Build HTML form */
 		
-		//getting package name
-		$sql = "select name from spdx_package_info 
-		where package_info_pk = '$Val_packageInfoPk'";
-		
-		$result = pg_query($PG_CONN, $sql);
-        //DBCheckResult($result, $sql, __FILE__, __LINE__);
-        if (pg_num_rows($result) > 0){
-			while ($packageInfo = pg_fetch_assoc($result)){
-			$VAL_packageName = $packageInfo['name'];
-	        }
-		}		
-		
         $V.= "<form name='packageEditAny' method='POST' action='" . $Uri . "?mod=spdx_fileInfoEdit_accept'>\n";
         $V.= "<P />\n";
 	        $text = _("This option permits editing a single file.");
