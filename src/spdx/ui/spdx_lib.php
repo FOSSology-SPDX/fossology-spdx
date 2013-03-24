@@ -14,6 +14,79 @@
  You should have received a copy of the Apache License along
  with this program; if not, contact to the Apache Software Foundation.
 ***********************************************************/
+function getVerificationCode($SpdxId,$packageId,$excludedfiles) {
+		global $PG_CONN;
+		
+		// select spdx_file_info table
+		$sql = "select filename,checksum from spdx_file_info
+		            where spdx_fk = $SpdxId
+		            	and package_info_fk = $packageId";
+
+		$filesSha1Result = pg_query($PG_CONN, $sql);
+    DBCheckResult($filesSha1Result, $sql, __FILE__, __LINE__);
+		while ($row = pg_fetch_assoc($filesSha1Result))
+		{
+			if (empty($excludedfiles))
+			{
+				$templist[] = $row['checksum'];
+			}
+			else
+			{
+				//get excluded files
+				$excludedfileArr = explode(",",$excludedfiles);
+				$match = false;
+				foreach ($excludedfileArr as $excludedfile)
+				{
+					//check if *.suffix, e.g. *.spdx
+					if(substr($excludedfile,0,2) =="*.")
+					{
+						if ( substr($excludedfile,2) == substr(strrchr($row['filename'],"."),1))
+						{
+							$match = true;
+						}
+					}
+					else
+					{
+						//check full path
+						if ($excludedfile == $row['filename'])
+						{
+							$match = true;
+						}
+					}
+				}
+				if ($match == false)
+				{
+					$templist[] = $row['checksum'];
+				}
+			}
+		}
+		sort($templist);
+		$num = count($templist); 
+		for($i=0;$i < $num;++$i)
+		{ 
+			$filelist = $filelist.$templist[$i]; 
+		} 
+		$verificationCode = SHA1($filelist);
+		pg_result_seek($filesSha1Result, 0);
+		return $verificationCode;
+}
+function Spdx_update_extractedLic($SpdxId,$Identifier) {
+		global $PG_CONN;
+		$license_display_name = htmlentities(GetParm('licensename',PARM_TEXT),ENT_QUOTES);
+		$cross_ref_url = htmlentities(GetParm('crossReferenceURLs',PARM_TEXT),ENT_QUOTES);
+		$lic_comment = htmlentities(GetParm('licensecomment',PARM_TEXT),ENT_QUOTES);
+		
+		// update spdx_extracted_lic_info table
+		$sql = "update spdx_extracted_lic_info
+		            set (license_display_name,cross_ref_url,lic_comment)
+		            = ('$license_display_name','$cross_ref_url','$lic_comment')
+		            where spdx_fk = $SpdxId
+		            	and Identifier = $Identifier";
+		$resultUpdateExtractedLic = pg_query($PG_CONN, $sql);
+    DBCheckResult($resultUpdateExtractedLic, $sql, __FILE__, __LINE__);
+    pg_free_result($resultUpdateExtractedLic);
+
+}
 function Spdx_update_package($SpdxId,$PackageInfoPk) {
 		global $PG_CONN;
 		$name = htmlentities(GetParm('packagename',PARM_TEXT),ENT_QUOTES);
@@ -26,7 +99,7 @@ function Spdx_update_package($SpdxId,$PackageInfoPk) {
 		$download_location = htmlentities(GetParm('packagedownloadlocation',PARM_TEXT),ENT_QUOTES);
 		$checksum = htmlentities(GetParm('packagechecksum',PARM_TEXT),ENT_QUOTES);
 		$verificationcode = htmlentities(GetParm('packageverificationcode',PARM_TEXT),ENT_QUOTES);
-		$verificationcode_excludedfiles = htmlentities(GetParm('verificationcodeexcludedfiles',PARM_TEXT),ENT_QUOTES);
+		$verificationcode_excludedfiles = htmlentities(GetParm('vcExcludedfiles',PARM_TEXT),ENT_QUOTES);
 		$source_info = htmlentities(GetParm('sourceinfo',PARM_TEXT),ENT_QUOTES);
 		$license_declared = htmlentities(GetParm('licensedeclared',PARM_TEXT),ENT_QUOTES);
 		$license_concluded = htmlentities(GetParm('licenseconcluded',PARM_TEXT),ENT_QUOTES);
@@ -41,7 +114,6 @@ function Spdx_update_package($SpdxId,$PackageInfoPk) {
 		            set (name,version,filename,supplier_type,supplier,originator_type,originator,download_location,checksum,verificationcode,verificationcode_excludedfiles,source_info,license_declared,license_concluded,license_info_from_files,license_comment,package_copyright_text,summary,description)
 		            = ('$name','$version','$filename','$supplier_type','$supplier','$originator_type','$originator','$download_location','$checksum','$verificationcode','$verificationcode_excludedfiles','$source_info','$license_declared','$license_concluded','$license_info_from_files','$license_comment','$package_copyright_text','$summary','$description')
 		            where spdx_fk = $SpdxId and package_info_pk = $PackageInfoPk";
-		            //echo "sql_update: ".$sql."<br>";
 		$resultUpdatePackage = pg_query($PG_CONN, $sql);
     DBCheckResult($resultUpdatePackage, $sql, __FILE__, __LINE__);
     pg_free_result($resultUpdatePackage);
@@ -54,6 +126,31 @@ function Spdx_update_package($SpdxId,$PackageInfoPk) {
     DBCheckResult($resultUpdateSPDX, $sql, __FILE__, __LINE__);
     pg_free_result($resultUpdateSPDX);
 
+}
+
+function Spdx_update_file($SpdxId,$FileInfoPk){
+		global $PG_CONN;
+		$filename = htmlentities(GetParm('filename',PARM_TEXT),ENT_QUOTES);
+		$filetype = htmlentities(GetParm('filetype',PARM_TEXT),ENT_QUOTES);
+		$checksum = htmlentities(GetParm('checksum',PARM_TEXT),ENT_QUOTES);
+		$license_concluded = htmlentities(GetParm('licenseConcluded',PARM_TEXT),ENT_QUOTES);
+		$license_info_in_file = htmlentities(GetParm('licenseInfoInFile',PARM_TEXT),ENT_QUOTES);
+		$license_comment = htmlentities(GetParm('licenseComment',PARM_TEXT),ENT_QUOTES);
+		$file_copyright_text = htmlentities(GetParm('fileCopyrightText',PARM_TEXT),ENT_QUOTES);
+		$artifact_of_project = htmlentities(GetParm('artifactOfProject',PARM_TEXT),ENT_QUOTES);
+		$artifact_of_homepage = htmlentities(GetParm('artifactOfHomepage',PARM_TEXT),ENT_QUOTES);
+		$artifact_of_url = htmlentities(GetParm('artifactOfUrl',PARM_TEXT),ENT_QUOTES);
+		$file_comment = htmlentities(GetParm('fileComment',PARM_TEXT),ENT_QUOTES);
+		
+		// update spdx_file_info table
+		$sql = "update spdx_file_info
+		            set (filename,filetype,checksum,license_concluded,license_info_in_file,license_comment,file_copyright_text,artifact_of_project,artifact_of_homepage,artifact_of_url,file_comment)
+		            = ('$filename','$filetype','$checksum','$license_concluded','$license_info_in_file','$license_comment','$file_copyright_text','$artifact_of_project','$artifact_of_homepage','$artifact_of_url','$file_comment')
+		            where spdx_fk = $SpdxId and file_info_pk = $FileInfoPk";
+		            //echo "sql_update: ".$sql."<br>";
+		$resultUpdatePackage = pg_query($PG_CONN, $sql);
+    DBCheckResult($resultUpdatePackage, $sql, __FILE__, __LINE__);
+    pg_free_result($resultUpdatePackage);
 }
 function Spdx_insert_update_spdx() {
 		global $PG_CONN;
@@ -255,9 +352,10 @@ function Spdx_insert_update_spdx() {
 					$packageSupplier = "";
 					$packageOriginator = "";
 					$packageChecksum = $packages['pfile_sha1'];
-					$excludesFile = "";
+					//default excluded files
+					$excludesFile = "*.spdx";
 					$packageLicComment = "";
-					$sql = "select pfile_sha1,pfile_pk from uploadtree left outer join pfile on uploadtree.pfile_fk = pfile.pfile_pk,
+					$sql = "select pfile_sha1,pfile_pk,ufile_name from uploadtree left outer join pfile on uploadtree.pfile_fk = pfile.pfile_pk,
 							  (select upload_fk, lft, rgt from uploadtree where uploadtree_pk in ($packages[uploadtree_pk])) T
 			            where uploadtree.lft > T.lft
 			            and uploadtree.rgt < T.rgt
@@ -271,7 +369,10 @@ function Spdx_insert_update_spdx() {
 					pg_result_seek($filesSha1Result, 0);
 					while ($row = pg_fetch_assoc($filesSha1Result))
 					{
+						if ( substr($excludesFile,2) != substr(strrchr($row['ufile_name'],"."),1))
+						{
 						$templist[] = $row['pfile_sha1'];
+					}
 					}
 					sort($templist);
 					$num = count($templist); 
@@ -359,10 +460,10 @@ function Spdx_insert_update_spdx() {
 		    while ($row = pg_fetch_assoc($outerresult))
 		    {
 		    	$filepatharray = Dir2Path($row['uploadtree_pk']);
-		    	$filepath = "";
+		    	$filepath = "./";
 		      foreach($filepatharray as $uploadtreeRow)
 		      {
-		        if (!empty($filepath)) $filepath .= "/";
+		        if ($filepath != "./") $filepath .= "/";
 		        $filepath .= $uploadtreeRow['ufile_name'];
 		      }
 		      $fileName = $filepath;
@@ -473,12 +574,6 @@ function Spdx_insert_update_spdx() {
 				  $first = true;
 				  foreach($CopyrightArray as $ct)
 				  {
-				  	/*
-				    if ($first)
-				    $first = false;
-				    else
-				    $CopyrightStr .= " ,";
-				    */
 				    $CopyrightStr .= $ct;
 				  }
 				  $fileCopyrightText = $CopyrightStr;
@@ -500,10 +595,15 @@ function Spdx_insert_update_spdx() {
 		      {
 			      $identifier = $lr['Identifier'];
 			      $licenseName = $lr['LRName'];
+			      $license_display_name = $licenseName;
+			      if (empty($license_display_name))
+		        {
+		        	$license_display_name = $NOASSERTION;
+		        }
 			      $licenseCrossReference = $lr['rf_url'];
 				    //insert extracted lic table
-				    $sql = "insert into spdx_extracted_lic_info (identifier,licensename,cross_ref_url,lic_comment,spdx_fk)
-				            values ($identifier,'$licenseName','$licenseCrossReference','',$spdxId)";
+				    $sql = "insert into spdx_extracted_lic_info (identifier,licensename,license_display_name,cross_ref_url,lic_comment,spdx_fk)
+				            values ($identifier,'$licenseName','$license_display_name','$licenseCrossReference','',$spdxId)";
 			      $resultInsert = pg_query($PG_CONN, $sql);
 			      DBCheckResult($resultInsert, $sql, __FILE__, __LINE__);
 			      pg_free_result($resultInsert);
@@ -512,7 +612,6 @@ function Spdx_insert_update_spdx() {
 		}
 		$_SESSION['spdxId']=$spdxId;
 		$_SESSION['packageInfoPk']=$packageInfoPk;
-		//session_write_close();
 }
 function GetPersonOrganization($type,$name,$sectionName)
 {
@@ -524,7 +623,6 @@ function GetPersonOrganization($type,$name,$sectionName)
 	{
 		$html = "<option value='Person:' selected='true'>Person:</option><option value='Organization:'>Organization:</option></select>";
 	}
-	$html.= "<input type='text' value='$name' name='$sectionName' size=40>";
 	return $html;
 }
 function GetHistoryBackFormValue($DBValue,$FormValue)

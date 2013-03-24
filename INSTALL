@@ -8,10 +8,11 @@ quickly get a local FOSSologySPDX instance up and running.
 
 This document is arranged as follows:
 
-Section 1 - Installation Instructions
-Section 2 - After Installation 
+Section 1 - Installation Instructions for module
+Section 2 - Installation Instructions for database
+Section 3 - After Module Installation
 
-Section 1 - Installation Instructions
+Section 1 - Installation Instructions for module
 ===========================================
 (In examples, # is as root, $ is mortal)
 Before you FOSSologySPDX, you need install FOSSology firstly. 
@@ -29,6 +30,13 @@ http://www.fossology.org/projects/fossology/wiki/User_Documentation.
 
 You're done, point your web browser at the new install
 (http://yourhostname/repo/) and start using FOSSologySPDX!
+
+
+Section 2 - Installation Instructions for database
+===========================================
+(In examples, # is as root, $ is mortal)
+After you install FOSSology database, 
+please refer to README under [db] folder to establish tables.
 
 
 Section 3 - After Installation

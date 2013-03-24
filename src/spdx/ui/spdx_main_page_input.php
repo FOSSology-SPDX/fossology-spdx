@@ -90,7 +90,6 @@ class spdx_main_page_input extends FO_Plugin
         $V.= "</tr>\n";
         $Val = htmlentities(GetParm('createdDate', PARM_TEXT), ENT_QUOTES);
         if( empty($Val)) {
-        	//$Val = Date("Y-m-d g:i:s");
         	$ValDate = Date("Y-m-d");
         	$ValTime = Date("H:i:s");
         }
