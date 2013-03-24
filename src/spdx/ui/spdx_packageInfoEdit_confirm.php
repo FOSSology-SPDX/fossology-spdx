@@ -36,7 +36,6 @@ class spdx_packageInfoEdit_confirm extends FO_Plugin
     }
     global $PG_CONN;
     $V = "";
-
     switch($this->OutputType) {
       case "XML":
         break;
@@ -44,6 +43,7 @@ class spdx_packageInfoEdit_confirm extends FO_Plugin
         $Uri = Traceback_uri();
 				$Val_SpdxId = htmlentities(GetParm('spdxId', PARM_TEXT), ENT_QUOTES);
 				$Val_PackageInfoPk = htmlentities(GetParm('packageInfoPk', PARM_TEXT), ENT_QUOTES);
+
         /* Build HTML form */
         $V.= "<form name='packageEditAny' method='POST' action='" . $Uri . "?mod=spdx_packageInfoEdit_accept'>\n";
         $V.= "<input type='hidden' value='$Val_SpdxId' name='spdxId'>\n";
@@ -55,6 +55,7 @@ class spdx_packageInfoEdit_confirm extends FO_Plugin
         $Style = "<tr><td colspan=3 style='background:black;'></td></tr><tr>";
         $V.= "<table style='border:1px solid black; text-align:left; background:lightyellow; table-layout: fixed;' width='100%'>";
         $Val = htmlentities(GetParm('packagename', PARM_TEXT), ENT_QUOTES);
+        $Val_PackageName = $Val;
         $text = _("Package Name");
         $V.= "$Style<th width='25%'>$text <font color='red'>*</font></th>";
         $V.= "<td><input type='hidden' value='$Val' name='packagename'>$Val</td>\n";
@@ -96,10 +97,10 @@ class spdx_packageInfoEdit_confirm extends FO_Plugin
         $V.= "$Style<th width='25%'>$text</th>";
         $V.= "<td><input type='hidden' value='$Val' name='packageverificationcode'>$Val</td>\n";
         $V.= "</tr>\n";
-        $Val = htmlentities(GetParm('verificationcodeexcludedfiles', PARM_TEXT), ENT_QUOTES);
+        $Val = htmlentities(GetParm('vcExcludedfiles', PARM_TEXT), ENT_QUOTES);
         $text = _("Verification Code Excluded Files");
         $V.= "$Style<th width='25%'>$text</th>";
-        $V.= "<td><input type='hidden' value='$Val' name='verificationcodeexcludedfiles'>$Val</td>\n";
+        $V.= "<td><input type='hidden' value='$Val' name='vcExcludedfiles'>$Val</td>\n";
         $V.= "</tr>\n";
         $Val = htmlentities(GetParm('sourceinfo', PARM_TEXT), ENT_QUOTES);
         $text = _("Source Info");
@@ -144,10 +145,10 @@ class spdx_packageInfoEdit_confirm extends FO_Plugin
         $V.= "</table><P />";
         
 		
-		$V .= "<a href=\"".$Uri."?mod=spdx_fileInfoEdit_list&spdxId=$Val_SpdxId&packageInfoPk=$Val_PackageInfoPk\" target='_blank')>Detail/Edit Files</a></br>\n";
+				$V .= "<a href=\"".$Uri."?mod=spdx_fileInfoEdit_list&spdxId=$Val_SpdxId&packageInfoPk=$Val_PackageInfoPk\" target='_blank')>Detail/Edit Files</a></br>\n";
         /* Get extracted lic info of the package */
         
-        $sql = "select identifier, license_ref.rf_text as extractedtext, licensename, cross_ref_url, lic_comment, rf_text from spdx_extracted_lic_info, license_ref
+        $sql = "select identifier, license_ref.rf_text as extractedtext, license_display_name as licensename, cross_ref_url, lic_comment, rf_text from spdx_extracted_lic_info, license_ref
 				where spdx_fk = $Val_SpdxId
 				and licensename = rf_shortname
 				order by identifier";
@@ -161,7 +162,8 @@ class spdx_packageInfoEdit_confirm extends FO_Plugin
 	        pg_result_seek($result, 0);
 	        while ($extractLic = pg_fetch_assoc($result))
 	        {
-	        	$V.= "<tr><td align='left'>" . "LicenseRef-" . $extractLic['identifier'] . "</td><td align='left'>" . $extractLic['extractedtext'] . "</td><td align='left'>" . $extractLic['licensename'] . "</td><td align='left'>" . $extractLic['cross_ref_url'] . "</td><td align='left'style='overflow: hidden;'>" . $extractLic['lic_comment'] . "</td><td>edit</td></tr>";
+	        	$Val_Identifier = $extractLic['identifier'];
+	        	$V.= "<tr><td align='left'>" . "LicenseRef-" . $extractLic['identifier'] . "</td><td align='left'>" . $extractLic['extractedtext'] . "</td><td align='left'>" . $extractLic['licensename'] . "</td><td align='left'>" . $extractLic['cross_ref_url'] . "</td><td align='left'style='overflow: hidden;'>" . $extractLic['lic_comment'] . "</td><td><a href=\"".$Uri."?mod=spdx_extdLicInfoEdit_input&spdxId=$Val_SpdxId&packageName=$Val_PackageName&identifier=$Val_Identifier\" target='_blank')>edit</a></td></tr>";
 	        }
 	        $V.= "</tbody></table><br>";
 	        pg_result_seek($result, 0);

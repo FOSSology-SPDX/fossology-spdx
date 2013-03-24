@@ -189,12 +189,12 @@ function Spdx_output_tag($SID) {
 		$buffer = $buffer.'PackageDownloadLocation: '.IsNONE($packageInfo["download_location"])."\r\n";
 		$buffer = $buffer.'PackageSummary: '.$packageInfo["summary"]."\r\n";
 		$buffer = $buffer.IsOptionalItem('PackageSourceInfo: ',$packageInfo["source_info"],"\r\n");
-		//$buffer = $buffer.'PackageSourceInfo: '.$packageInfo["source_info"]."\r\n";
 		$buffer = $buffer.'PackageFileName: '.$packageInfo["filename"]."\r\n";
 		$buffer = $buffer.'PackageSupplier: '.$packageInfo["supplier_type"].IsNOASSERTION($packageInfo["supplier"])."\r\n";
 		$buffer = $buffer.'PackageOriginator: '.$packageInfo["originator_type"].IsNOASSERTION($packageInfo["originator"])."\r\n";
 		$buffer = $buffer.'PackageChecksum: SHA1: '.$packageInfo["checksum"]."\r\n"; //not perform the following(If the SPDX file is to be included in a package, this value should not be calculated).
 		$buffer = $buffer.'PackageVerificationCode: '.$packageInfo["verificationcode"]."\r\n";
+		$buffer = $buffer.'PackageVerificationCodeExcludedFile: '.$packageInfo["verificationcode_excludedfiles"]."\r\n";
 		$buffer = $buffer.'PackageDescription: <text>'.$packageInfo["description"]."</text>\r\n\r\n";
 		$buffer = $buffer.'PackageCopyrightText: <text>'.IsNONE($packageInfo["package_copyright_text"])."</text>\r\n\r\n";
 		$buffer = $buffer.'PackageLicenseDeclared: '.IsNONEParenthesis($packageInfo["license_declared"])."\r\n";

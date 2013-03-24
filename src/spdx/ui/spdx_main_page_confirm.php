@@ -69,6 +69,33 @@ class spdx_main_page_confirm extends FO_Plugin
                 return true;
               }
              }";
+        $V.= "\nfunction doRefresh(packages){";
+        $V.= "			var spdxVersion = document.getElementById('spdxVersion').value;";
+        $V.= "			var creator = document.getElementById('creator').value;";
+        $V.= "			var creatorOptional1 = document.getElementById('creatorOptional1').value;";
+        $V.= "			var creatorOptional2 = document.getElementById('creatorOptional2').value;";
+        $V.= "			var created_Date = document.getElementById('created_Date').value;";
+        $V.= "			var created_Time = document.getElementById('created_Time').value;";
+        $V.= "			var dataLicense = document.getElementById('dataLicense').value;";
+        $V.= "			var creatorComment = document.getElementById('creatorComment').value;";
+        $V.= "			var documentComment = document.getElementById('documentComment').value;";
+        $V.= "			var spdxOutputType = document.getElementById('spdxOutputType').value;";
+        $V.= '			var url = "'.$Uri.'?mod='.$this->Name.'&spdxVersion="+spdxVersion+"&creator="+creator+"&creatorOptional1="+creatorOptional1+"&creatorOptional2="+creatorOptional2+"&created_Date="+created_Date+"&created_Time="+created_Time+"&dataLicense="+dataLicense+"&creatorComment="+creatorComment+"&documentComment="+documentComment+"&spdxOutputType="+spdxOutputType+"&packages="+packages+"";';
+        $V.= '  window.location.assign(url);';
+        $V.= "}";
+        $V.= "\nfunction doBack(packages){";
+        $V.= "			var spdxVersion = document.getElementById('spdxVersion').value;";
+        $V.= "			var creator = document.getElementById('creator').value;";
+        $V.= "			var creatorOptional1 = document.getElementById('creatorOptional1').value;";
+        $V.= "			var creatorOptional2 = document.getElementById('creatorOptional2').value;";
+        $V.= "			var created_Date = document.getElementById('created_Date').value;";
+        $V.= "			var created_Time = document.getElementById('created_Time').value;";
+        $V.= "			var dataLicense = document.getElementById('dataLicense').value;";
+        $V.= "			var creatorComment = document.getElementById('creatorComment').value;";
+        $V.= "			var documentComment = document.getElementById('documentComment').value;";
+        $V.= '			var url = "'.$Uri.'?mod=spdx_main_page_input&spdxVersion="+spdxVersion+"&creator="+creator+"&creatorOptional1="+creatorOptional1+"&creatorOptional2="+creatorOptional2+"&created_Date="+created_Date+"&created_Time="+created_Time+"&dataLicense="+dataLicense+"&creatorComment="+creatorComment+"&documentComment="+documentComment+"&packages="+packages+"";';
+        $V.= '  window.location.assign(url);';
+        $V.= "}";
         $V.= "</script>\n";
         /* Build HTML form */
         $V.= "<form name='spdxEditAny' method='POST'>\n"; // no url = this url
@@ -81,43 +108,43 @@ class spdx_main_page_confirm extends FO_Plugin
         $Val = htmlentities(GetParm('spdxVersion', PARM_TEXT), ENT_QUOTES);
         $text = _("SPDX Version");
         $V.= "$Style<th width='25%'>$text</th>";
-        $V.= "<td><input type='hidden' value='$Val' name='spdxVersion'>$Val</td>\n";
+        $V.= "<td><input type='hidden' value='$Val' name='spdxVersion' id='spdxVersion'>$Val</td>\n";
         $V.= "</tr>\n";
         $Val = htmlentities(GetParm('creator', PARM_TEXT), ENT_QUOTES);
         $text = _("Creator");
         $V.= "$Style<th width='25%'>$text</th>";
-        $V.= "<td><input type='hidden' value='$Val' name='creator'>$Val</td>\n";
+        $V.= "<td><input type='hidden' value='$Val' name='creator' id='creator'>$Val</td>\n";
         $V.= "</tr>\n";
         $Val = htmlentities(GetParm('creatorOptional1', PARM_TEXT), ENT_QUOTES);
         $text = _("Creator optional1");
         $V.= "$Style<th>$text</th>\n";
-        $V.= "<td><input type='hidden' name='creatorOptional1' value='$Val'>$Val</td>\n";
+        $V.= "<td><input type='hidden' name='creatorOptional1' value='$Val' id='creatorOptional1'>$Val</td>\n";
         $V.= "</tr>\n";
         $Val = htmlentities(GetParm('creatorOptional2', PARM_TEXT), ENT_QUOTES);
         $text = _("Creator optional2");
         $V.= "$Style<th>$text</th>\n";
-        $V.= "<td><input type='hidden' name='creatorOptional2' value='$Val'>$Val</td>\n";
+        $V.= "<td><input type='hidden' name='creatorOptional2' value='$Val' id='creatorOptional2'>$Val</td>\n";
         $V.= "</tr>\n";
         $ValDate = htmlentities(GetParm('created_Date', PARM_TEXT), ENT_QUOTES);
         $ValTime = htmlentities(GetParm('created_Time', PARM_TEXT), ENT_QUOTES);
         $text = _("Created Date");
         $V.= "$Style<th>$text</th>\n";
-        $V.= "<td><input type='hidden' name='created_Date' value='$ValDate'><input type='hidden' name='created_Time' value='$ValTime'>$ValDate $ValTime</td>\n";
+        $V.= "<td><input type='hidden' name='created_Date' value='$ValDate' id='created_Date'><input type='hidden' name='created_Time' value='$ValTime' id='created_Time'>$ValDate $ValTime</td>\n";
         $V.= "</tr>\n";
         $Val = htmlentities(GetParm('dataLicense', PARM_TEXT), ENT_QUOTES);
         $text = _("Data License");
         $V.= "$Style<th>$text</th>\n";
-        $V.= "<td><input type='hidden' name='dataLicense' value='$Val'>$Val</td>\n";
+        $V.= "<td><input type='hidden' name='dataLicense' value='$Val' id='dataLicense'>$Val</td>\n";
         $V.= "</tr>\n";
         $Val = htmlentities(GetParm('creatorComment', PARM_TEXT), ENT_QUOTES);
         $text = _("Creator Comment");
         $V.= "$Style<th>$text</th>\n";
-        $V.= "<td><input type='hidden' name='creatorComment' value='$Val'><span class='bodySmall'>$Val</span></td>\n";
+        $V.= "<td><input type='hidden' name='creatorComment' value='$Val' id='creatorComment'><span class='bodySmall'>$Val</span></td>\n";
         $V.= "</tr>\n";
         $Val = htmlentities(GetParm('documentComment', PARM_TEXT), ENT_QUOTES);
         $text = _("Document Comment");
         $V.= "$Style<th>$text</th>\n";
-        $V.= "<td><input type='hidden' name='documentComment' value='$Val'><span class='bodySmall'>$Val</span></td>\n";
+        $V.= "<td><input type='hidden' name='documentComment' value='$Val' id='documentComment'><span class='bodySmall'>$Val</span></td>\n";
         $V.= "</tr>\n";
         $text = _("Output File Type");
         $V.= "$Style<th>$text</th>\n";
@@ -125,7 +152,11 @@ class spdx_main_page_confirm extends FO_Plugin
         $V.= "</tr>\n";
         $V.= "</table><P />";
         /* Get selected packages */
+        $packagePks = htmlentities(GetParm('packages', PARM_TEXT), ENT_QUOTES);
+        if (empty($packagePks))
+        {
         $packagePks = $_POST['packages'];
+        }
         
         $sql = "select max(pkg_name) as name,max(version) as version,max(source_info) as source_info,max(description) as description,max(pkg_filename) as filename,pfile_pk as pfile_fk,pfile_sha1,upload_fk,uploadtree_pk
 							from(
@@ -153,6 +184,11 @@ class spdx_main_page_confirm extends FO_Plugin
         if (pg_num_rows($result) > 0){
         	$text = _("Package(s)");
 	        $V .= "$text<br>\n";
+	        $text = _("Refresh");
+        	$V.= "\n<button type='button' onclick='doRefresh($packagePks)'>$text</button>\n";
+        	global $Plugins;
+    			$Refresh = & $Plugins[plugin_find_id("refresh") ];
+        	$URL = Traceback_dir() . "?" . $Refresh->GetRefresh();
 	        $V.= "<table border='1' width='100%'>";
 	        $V.= "<tbody><tr><th width='15%'>Name</th><th width='20%'>Version</th><th width='20%'>Source Info</th><th width='40%'>Description</th><th>Package Edit</th><th>File Edit</th></tr>";
 	        pg_result_seek($result, 0);
@@ -165,9 +201,9 @@ class spdx_main_page_confirm extends FO_Plugin
 	        $V.= "</tbody></table><br>";
 	      }
 	      pg_free_result($result);
-	      $V.= "\n<button type='button' onclick='history.back();'>Back</button>\n";
+	      $V.= "\n<button type='button' onclick='doBack($packagePks);'>Back</button>\n";
         $text = _("Create");
-        $V.= "\n<button type='button' onclick='outputspdx()'>Create</button>\n";
+        $V.= "\n<button type='button' onclick='outputspdx()'>$text</button>\n";
         $V.= "</form>\n";
          
         break;

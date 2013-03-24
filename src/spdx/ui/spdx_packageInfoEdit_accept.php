@@ -64,6 +64,7 @@ class spdx_packageInfoEdit_accept extends FO_Plugin
         $V.= "<td>$Val</td>\n";
         $V.= "</tr>\n";
         $Val = htmlentities(GetParm('packagefileName', PARM_TEXT), ENT_QUOTES);
+        $Val_PackageName = $Val;
         $text = _("Package FileName");
         $V.= "$Style<th width='25%'>$text</th>";
         $V.= "<td>$Val</td>\n";
@@ -95,7 +96,7 @@ class spdx_packageInfoEdit_accept extends FO_Plugin
         $V.= "$Style<th width='25%'>$text</th>";
         $V.= "<td>$Val</td>\n";
         $V.= "</tr>\n";
-        $Val = htmlentities(GetParm('verificationcodeexcludedfiles', PARM_TEXT), ENT_QUOTES);
+        $Val = htmlentities(GetParm('vcExcludedfiles', PARM_TEXT), ENT_QUOTES);
         $text = _("Verification Code Excluded Files");
         $V.= "$Style<th width='25%'>$text</th>";
         $V.= "<td>$Val</td>\n";
@@ -142,6 +143,7 @@ class spdx_packageInfoEdit_accept extends FO_Plugin
         $V.= "</tr>\n";
         $V.= "</table><P />";
         
+        $V .= "<a href=\"".$Uri."?mod=spdx_fileInfoEdit_list&spdxId=$Val_SpdxId&packageInfoPk=$Val_PackageInfoPk\" target='_blank')>Detail/Edit Files</a></br>\n";
         /* Get extracted lic info of the package */
         
         $sql = "select identifier, license_ref.rf_text as extractedtext, licensename, cross_ref_url, lic_comment, rf_text from spdx_extracted_lic_info, license_ref
@@ -158,7 +160,8 @@ class spdx_packageInfoEdit_accept extends FO_Plugin
 	        pg_result_seek($result, 0);
 	        while ($extractLic = pg_fetch_assoc($result))
 	        {
-	        	$V.= "<tr><td align='left'>" . "LicenseRef-" . $extractLic['identifier'] . "</td><td align='left'>" . $extractLic['extractedtext'] . "</td><td align='left'>" . $extractLic['licensename'] . "</td><td align='left'>" . $extractLic['cross_ref_url'] . "</td><td align='left'style='overflow: hidden;'>" . $extractLic['lic_comment'] . "</td><td>edit</td></tr>";
+	        	$Val_Identifier = $extractLic['identifier'];
+	        	$V.= "<tr><td align='left'>" . "LicenseRef-" . $extractLic['identifier'] . "</td><td align='left'>" . $extractLic['extractedtext'] . "</td><td align='left'>" . $extractLic['licensename'] . "</td><td align='left'>" . $extractLic['cross_ref_url'] . "</td><td align='left'style='overflow: hidden;'>" . $extractLic['lic_comment'] . "</td><td><a href=\"".$Uri."?mod=spdx_extdLicInfoEdit_input&spdxId=$Val_SpdxId&packageName=$Val_PackageName&identifier=$Val_Identifier\" target='_blank')>edit</a></td></tr>";
 	        }
 	        $V.= "</tbody></table><br>";
 	        pg_result_seek($result, 0);
@@ -167,7 +170,7 @@ class spdx_packageInfoEdit_accept extends FO_Plugin
 	      $filelistTest = _("File List");
 	      // file info edit
 		  	$filelistURI = "";
-	      $V .= "$text $filelistTest\n";
+	      $V .= "$text <a href=\"".$Uri."?mod=spdx_fileInfoEdit_list&spdxId=$Val_SpdxId&packageInfoPk=$Val_PackageInfoPk\" target='_blank')>$filelistTest</a>\n";
 	      $V.= "\n<button type='button' onclick='window.close()'>Close</button>\n";
         $V.= "</form>\n";
         break;
