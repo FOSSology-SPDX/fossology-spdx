@@ -3,16 +3,19 @@ FOSSologySPDX Installation Documentation
 Introduction
 ============
 This document is designed to help you get FOSSologySPDX installed and ready
-to use. Its intended audience is the system administrator who wants to
-quickly get a local FOSSologySPDX instance up and running.
+to use. As of now, there are 2 ways to install FOSSologySPDX. You can install it 
+from scratch on top of an instance of FOSSology, or you can make a new instance of 
+FOSSologySPDX on Amazon Web Services.
 
-This document is arranged as follows:
+===========================================
+The following are instructions if you are installing the module on top of an already 
+existing installation of sollology. 
 
 Section 1 - Installation Instructions for module
 Section 2 - Installation Instructions for database
 Section 3 - After Module Installation
 
-Section 1 - Installation Instructions for module
+Section 1
 ===========================================
 (In examples, # is as root, $ is mortal)
 Before you FOSSologySPDX, you need install FOSSology firstly. 
@@ -53,3 +56,42 @@ password and:
 3) customize (if desired) your FOSSology website using the directions at 
 http://www.fossology.org/projects/fossology/wiki/Config-How_to_Configure_the_FOSSology_site
 4) generate SPDX file under menu [SPDX]
+===========================================
+===========================================
+The following are instructions if you are creating a new instance of FOSSologySPDX from 
+the Amazon Web Service image.
+
+Section 1 - Crate a new instace from image
+Section 2 - Configure Firewall
+Section 3 - After Module Installation
+
+Section 1 - Crate a new instance from image
+===========================================
+The following assumes that you have already navigated to your Amazon EC2 dashboard.
+(https://console.aws.amazon.com/ec2/)
+
+1) Click "Launch Instance. Click on next (We'll be using the classic wizard).
+2) When Choosing an AMI, click on the "Community AMI's" tab. Make sure you're viewing all images 
+   and then type "fossology". Select the AMI with the manifest "186210339502/fossology-spdx"
+3) Click through and customize your instance if desired. Make sure to give it a name and create a keypair.
+4) When you get to the "Configure Firewall" page move on to the next section
+
+Section 2 - Configure Firewall
+===========================================
+Feel free to configure the firewall in any way that you want. The following is the minimum 
+needed to get an instance running and reachable.
+
+1) If you already have a Security group that you setup, use that. Otherwise, click "Create a new Security Group"
+2) give it a name and description. 
+3) Under "crate a new rule" select HTTP and leave the source 0.0.0.0/0. Click "Add Rule".
+4) If you want to SSH into your instance, you will need to open that port as well. 
+
+Section 3 
+===========================================
+
+1) Click through until you exit the wizard. 
+2) Once your instance's state changes to "Running", you will have a working instance of FOSSologySPDX
+3) you can view your instance by typing [PUBLIC_DNS_OF_INSTANCE]/repo/ in your browser. 
+   ex: http://ec2-54-234-238-63.compute-1.amazonaws.com/repo/
+4) Congratulations! You now have a working instance of FOSSologySPDX
+===========================================
