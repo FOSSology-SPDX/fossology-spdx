@@ -31,7 +31,7 @@ function Spdx_output_notice($SID) {
 				from (select regexp_split_to_table((select * from (SELECT license_info_from_files from spdx_package_info where spdx_fk=$spdxId) as T), E',') as lic_name) as lic_list
 				where 'LicenseRef-'<> substring(lic_list.lic_name from 1 for 11)
 				UNION
-				select distinct(spdx_extracted_lic_info.licensename) as lic_name
+				select distinct(spdx_extracted_lic_info.license_display_name) as lic_name
 				from (select regexp_split_to_table((select * from (SELECT license_info_from_files from spdx_package_info where spdx_fk=$spdxId) as T), E',') as lic_name) as lic_list, spdx_extracted_lic_info
 				where concat('LicenseRef-',spdx_extracted_lic_info.identifier) = lic_list.lic_name
 				and spdx_extracted_lic_info.spdx_fk = $spdxId";
@@ -97,7 +97,7 @@ function Spdx_output_notice2($SID) {
 					from (select regexp_split_to_table((select * from (SELECT license_info_from_files from spdx_package_info where spdx_fk=$spdxId) as T), E',') as lic_name) as lic_list--license_ref
 					where 'LicenseRef-'<> substring(lic_list.lic_name from 1 for 11)
 					UNION
-					select distinct(spdx_extracted_lic_info.licensename) as lic_name, concat('LicenseRef-',spdx_extracted_lic_info.identifier) as lic_id
+					select distinct(spdx_extracted_lic_info.license_display_name) as lic_name, concat('LicenseRef-',spdx_extracted_lic_info.identifier) as lic_id
 					from (select regexp_split_to_table((select * from (SELECT license_info_from_files from spdx_package_info where spdx_fk=$spdxId) as T), E',') as lic_name) as lic_list, spdx_extracted_lic_info--license_ref
 					where concat('LicenseRef-',spdx_extracted_lic_info.identifier) = lic_list.lic_name
 					and spdx_extracted_lic_info.spdx_fk = $spdxId";
@@ -258,7 +258,7 @@ function Spdx_output_tag($SID) {
 	$buffer = $buffer."\r\n## License Information\r\n";
   //select Extracted License Information
 	$sql = "SELECT identifier,
-								 licensename,
+								 license_display_name as licensename,
 	               cross_ref_url,
 	               lic_comment,
 	               rf_text

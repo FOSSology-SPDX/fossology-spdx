@@ -84,13 +84,13 @@ class spdx_fileInfoEdit_list extends FO_Plugin
 	        {
 
 		        $V.= "<tr><td width='10%'>".$fileInfo['filename']."</td>";
-				$V.= "<td width='10%'>".$fileInfo['filetype']."</td>";
-				$V.= "<td width='10%'>".$fileInfo['license_concluded']."</td>";
-				$V.= "<td width='10%'>".$fileInfo['license_info_in_file']."</td>";
-				$V.= "<td width='10%'>".$fileInfo['license_comment']."</td>";
-				$V.= "<td width='15%'>".substr($fileInfo['file_copyright_text'],0,60)." ... </td>";
-				$V.= "<td width='15%' align='left' style='overflow:hidden;'>".$fileInfo['file_comment']."</td>";
-				$V.= "<td width='10%'><a href='".$Uri."?mod=spdx_fileInfoEdit_input&spdxId=" . $_SESSION['spdxId'] . "&packageInfoPk=" . $_SESSION['packageInfoPk'] . "&fileInfoPk=" . $fileInfo['file_info_pk'] ."'>detail/edit</a></td></tr>";
+						$V.= "<td width='10%'>".$fileInfo['filetype']."</td>";
+						$V.= "<td width='10%'>".$fileInfo['license_concluded']."</td>";
+						$V.= "<td width='10%'>".$fileInfo['license_info_in_file']."</td>";
+						$V.= "<td width='10%'>".$fileInfo['license_comment']."</td>";
+						$V.= "<td width='15%'>".substr($fileInfo['file_copyright_text'],0,60)." ... </td>";
+						$V.= "<td width='15%' align='left' style='overflow:hidden;'>".$fileInfo['file_comment']."</td>";
+						$V.= "<td width='10%'><a href='".$Uri."?mod=spdx_fileInfoEdit_input&spdxId=" . $_SESSION['spdxId'] . "&packageInfoPk=" . $_SESSION['packageInfoPk'] . "&fileInfoPk=" . $fileInfo['file_info_pk'] ."' target='newFileEdit'>detail/edit</a></td></tr>";
     
 			}        
 	        $V.= "</tbody></table><br>";

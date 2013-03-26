@@ -52,7 +52,7 @@ class spdx_extdLicInfoEdit_input extends FO_Plugin
         $Val_SpdxId = htmlentities(GetParm('spdxId', PARM_TEXT), ENT_QUOTES);
         $Val_packageName = htmlentities(GetParm('packageName', PARM_TEXT), ENT_QUOTES);
         $Val_Identifier = htmlentities(GetParm('identifier', PARM_TEXT), ENT_QUOTES);
-				$sql = "select identifier, cross_ref_url, lic_comment, license_display_name, rf_text as extractedText from spdx_extracted_lic_info, license_ref
+				$sql = "select identifier, cross_ref_url, lic_comment, license_display_name, rf_text as extractedtext from spdx_extracted_lic_info, license_ref
 		        where spdx_fk = '$Val_SpdxId'
 		        	and identifier = '$Val_Identifier'
 		        	and licensename = rf_shortname";
@@ -80,8 +80,8 @@ class spdx_extdLicInfoEdit_input extends FO_Plugin
 		        $V.= "</tr>\n";
 		        $text = _("Extracted Text");
 		        $V.= "$Style<th width='25%'>$text</th>";
-		        $Val = $extractedLicInfo[extractedText];
-		        $V.= "<td><input type='hidden' value='$Val' name='extractedText'>$Val</td>\n";
+		        $Val = $extractedLicInfo[extractedtext];
+		        $V.= "<td><input type='hidden' value='$Val' name='extractedtext'>$Val</td>\n";
 		        $V.= "</tr>\n";
 		        $text = _("License Name");
 		        $V.= "$Style<th width='25%'>$text</th>";
