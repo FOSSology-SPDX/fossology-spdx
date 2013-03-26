@@ -63,10 +63,10 @@ class spdx_extdLicInfoEdit_confirm extends FO_Plugin
         $V.= "$Style<th width='25%'>$text</th>";
         $V.= "<td><input type='hidden' value='$Val_Identifier' name='identifier'>$Val</td>\n";
         $V.= "</tr>\n";
-        $Val = htmlentities(GetParm('extractedText', PARM_TEXT), ENT_QUOTES);
+        $Val = htmlentities(GetParm('extractedtext', PARM_TEXT), ENT_QUOTES);
         $text = _("Extracted Text");
         $V.= "$Style<th width='25%'>$text</th>";
-        $V.= "<td><input type='hidden' value='$Val' name='extractedText'>$Val</td>\n";
+        $V.= "<td><input type='hidden' value='$Val' name='extractedtext'>$Val</td>\n";
         $V.= "</tr>\n";
         $Val = htmlentities(GetParm('licensename', PARM_TEXT), ENT_QUOTES);
         $text = _("License Name");

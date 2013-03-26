@@ -194,8 +194,8 @@ class spdx_main_page_confirm extends FO_Plugin
 	        pg_result_seek($result, 0);
 	        while ($package = pg_fetch_assoc($result))
 	        {
-	        	$V .= "<tr><td align='left'>" . $package['name'] . "</td><td align='left'>" . $package['version'] . "</td><td align='left'>" . $package['source_info'] . "</td><td align='left'style='overflow: hidden;'>" . $package['description'] . "</td><td><a href=".$Uri."?mod=spdx_packageInfoEdit_input&spdxId=" . $_SESSION['spdxId'] . "&pfile=" . $package['pfile_fk'] . " target='_blank')>Detail/Edit Package</a></td>";
-				$V .= "<td><a href=\"".$Uri."?mod=spdx_fileInfoEdit_list&spdxId=".$_SESSION['spdxId']."&packageInfoPk=" . $package['package_info_pk'] . "\" target='_blank')>Detail/Edit Files</a></td>\n";
+	        	$V .= "<tr><td align='left'>" . $package['name'] . "</td><td align='left'>" . $package['version'] . "</td><td align='left'>" . $package['source_info'] . "</td><td align='left'style='overflow: hidden;'>" . $package['description'] . "</td><td><a href=".$Uri."?mod=spdx_packageInfoEdit_input&spdxId=" . $_SESSION['spdxId'] . "&pfile=" . $package['pfile_fk'] . " target='newPackageEdit')>Detail/Edit Package</a></td>";
+				$V .= "<td><a href=\"".$Uri."?mod=spdx_fileInfoEdit_list&spdxId=".$_SESSION['spdxId']."&packageInfoPk=" . $package['package_info_pk'] . "\" target='newFileList')>Detail/Edit Files</a></td>\n";
 				$V .= "</tr>";
 	        }
 	        $V.= "</tbody></table><br>";
