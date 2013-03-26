@@ -143,10 +143,13 @@ class spdx_packageInfoEdit_accept extends FO_Plugin
         $V.= "</tr>\n";
         $V.= "</table><P />";
         
-        $V .= "<a href=\"".$Uri."?mod=spdx_fileInfoEdit_list&spdxId=$Val_SpdxId&packageInfoPk=$Val_PackageInfoPk\" target='_blank')>Detail/Edit Files</a></br>\n";
+        // file info edit
+        $textFile = _("File: ");
+	      $filelistTest = _("File List");
+		  	$V .= "$textFile <a href=\"".$Uri."?mod=spdx_fileInfoEdit_list&spdxId=$Val_SpdxId&packageInfoPk=$Val_PackageInfoPk\" target='newFileList')>$filelistTest</a><br>";
         /* Get extracted lic info of the package */
         
-        $sql = "select identifier, license_ref.rf_text as extractedtext, licensename, cross_ref_url, lic_comment, rf_text from spdx_extracted_lic_info, license_ref
+        $sql = "select identifier, license_ref.rf_text as extractedtext, license_display_name as licensename, cross_ref_url, lic_comment, rf_text from spdx_extracted_lic_info, license_ref
 				where spdx_fk = $Val_SpdxId
 				and licensename = rf_shortname
 				order by identifier";
@@ -154,23 +157,20 @@ class spdx_packageInfoEdit_accept extends FO_Plugin
         DBCheckResult($result, $sql, __FILE__, __LINE__);
         if (pg_num_rows($result) > 0){
         	$text = _("Extracted Lic Info");
-	        $V .= "$text<br>\n";
+	        $V .= "<br>$text<br>\n";
 	        $V.= "<table border='1' width='100%'>";
 	        $V.= "<tbody><tr><th width='10%'>Identifier</th><th width='15%'>Extracted Text</th><th width='15%'>License Name</th><th width='15%'>Cross Reference URLs</th><th width='40%'>Comment</th><th>&nbsp;</th></tr>";
 	        pg_result_seek($result, 0);
 	        while ($extractLic = pg_fetch_assoc($result))
 	        {
 	        	$Val_Identifier = $extractLic['identifier'];
-	        	$V.= "<tr><td align='left'>" . "LicenseRef-" . $extractLic['identifier'] . "</td><td align='left'>" . $extractLic['extractedtext'] . "</td><td align='left'>" . $extractLic['licensename'] . "</td><td align='left'>" . $extractLic['cross_ref_url'] . "</td><td align='left'style='overflow: hidden;'>" . $extractLic['lic_comment'] . "</td><td><a href=\"".$Uri."?mod=spdx_extdLicInfoEdit_input&spdxId=$Val_SpdxId&packageName=$Val_PackageName&identifier=$Val_Identifier\" target='_blank')>edit</a></td></tr>";
+	        	$V.= "<tr><td align='left'>" . "LicenseRef-" . $extractLic['identifier'] . "</td><td align='left'>" . $extractLic['extractedtext'] . "</td><td align='left'>" . $extractLic['licensename'] . "</td><td align='left'>" . $extractLic['cross_ref_url'] . "</td><td align='left'style='overflow: hidden;'>" . $extractLic['lic_comment'] . "</td><td><a href=\"".$Uri."?mod=spdx_extdLicInfoEdit_input&spdxId=$Val_SpdxId&packageName=$Val_PackageName&identifier=$Val_Identifier\" target='newExtLicEdit')>edit</a></td></tr>";
 	        }
 	        $V.= "</tbody></table><br>";
 	        pg_result_seek($result, 0);
+	        // file info edit
+		  		$V .= "$textFile <a href=\"".$Uri."?mod=spdx_fileInfoEdit_list&spdxId=$Val_SpdxId&packageInfoPk=$Val_PackageInfoPk\" target='newFileList')>$filelistTest</a><br>";
 	      }
-	      $text = _("File: ");
-	      $filelistTest = _("File List");
-	      // file info edit
-		  	$filelistURI = "";
-	      $V .= "$text <a href=\"".$Uri."?mod=spdx_fileInfoEdit_list&spdxId=$Val_SpdxId&packageInfoPk=$Val_PackageInfoPk\" target='_blank')>$filelistTest</a>\n";
 	      $V.= "\n<button type='button' onclick='window.close()'>Close</button>\n";
         $V.= "</form>\n";
         break;

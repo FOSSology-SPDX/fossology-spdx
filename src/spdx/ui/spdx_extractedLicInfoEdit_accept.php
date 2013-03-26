@@ -64,7 +64,7 @@ class spdx_extdLicInfoEdit_accept extends FO_Plugin
         $V.= "$Style<th width='25%'>$text</th>";
         $V.= "<td>$Val</td>\n";
         $V.= "</tr>\n";
-        $Val = htmlentities(GetParm('extractedText', PARM_TEXT), ENT_QUOTES);
+        $Val = htmlentities(GetParm('extractedtext', PARM_TEXT), ENT_QUOTES);
         $text = _("Extracted Text");
         $V.= "$Style<th width='25%'>$text</th>";
         $V.= "<td>$Val</td>\n";
