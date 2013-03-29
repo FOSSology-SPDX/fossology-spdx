@@ -112,7 +112,8 @@ class spdx_main_page_input extends FO_Plugin
         $V.= "$Style<th>$text</th>\n";
         $V.= "<td><input type='text' name='documentComment' value='$Val' size=60></td>\n";
         $V.= "</tr>\n";
-        $V.= "</table><P />";
+        $V.= "<tr><td colspan='3' style='background:black;'></td></tr>\n";
+        $V.= "</table><P/>";
         /* Get the list of packages */
         $sql = "select uploadtree.pfile_fk as pfile_pk, max(upload_origin||'('||upload_desc||')') as pkg_name, max(uploadtree_pk) as uploadtree_pk
 								from upload , uploadtree

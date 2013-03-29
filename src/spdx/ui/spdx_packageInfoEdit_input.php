@@ -201,8 +201,8 @@ class spdx_packageInfoEdit_input extends FO_Plugin
 		        $Val = GetHistoryBackFormValue($packageInfo[description],htmlentities(GetParm('description', PARM_TEXT), ENT_QUOTES));
 		        $V.= "<td><input type='text' value='$Val' name='description' id='description' style='width:95%'></td>\n";
 		        $V.= "</tr>\n";
-		        $V.= "<tr><td colspan='2' style='background:black;'></td></tr>\n";
-		        $V.= "</table><p>Extracted Lic Info &amp; File(s) Infro can be seen at next page</p>\n";
+		        $V.= "<tr><td colspan='3' style='background:black;'></td></tr>\n";
+		        $V.= "</table><P/>";
 	        }
 					$V.= "\n<button type='button' onclick='window.close();'>Close</button>\n";
 					$text = _("Next");
