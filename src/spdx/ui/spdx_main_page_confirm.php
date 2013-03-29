@@ -150,7 +150,8 @@ class spdx_main_page_confirm extends FO_Plugin
         $V.= "$Style<th>$text</th>\n";
         $V.= "<td><select id='spdxOutputType'><option value='tag'>SPDX-TAG</option><option value='notice'>NOTICE-Format1</option><option value='notice2'>NOTICE-Format2</option></select></td>\n";
         $V.= "</tr>\n";
-        $V.= "</table><P />";
+        $V.= "<tr><td colspan='3' style='background:black;'></td></tr>\n";
+        $V.= "</table><P/>";
         /* Get selected packages */
         $packagePks = htmlentities(GetParm('packages', PARM_TEXT), ENT_QUOTES);
         if (empty($packagePks))
@@ -190,13 +191,14 @@ class spdx_main_page_confirm extends FO_Plugin
     			$Refresh = & $Plugins[plugin_find_id("refresh") ];
         	$URL = Traceback_dir() . "?" . $Refresh->GetRefresh();
 	        $V.= "<table border='1' width='100%'>";
-	        $V.= "<tbody><tr><th width='15%'>Name</th><th width='20%'>Version</th><th width='20%'>Source Info</th><th width='40%'>Description</th><th>Package Edit</th><th>File Edit</th></tr>";
+	        $V.= "<tbody><tr><th width='15%'>Name</th><th width='20%'>Version</th><th width='20%'>Source Info</th><th width='25%'>Description</th><th nowrap='nowrap'>Package Edit</th><th nowrap='nowrap'>File List</th><th nowrap='nowrap'>Extracted Lic Info List</th></tr>";
 	        pg_result_seek($result, 0);
 	        while ($package = pg_fetch_assoc($result))
 	        {
-	        	$V .= "<tr><td align='left'>" . $package['name'] . "</td><td align='left'>" . $package['version'] . "</td><td align='left'>" . $package['source_info'] . "</td><td align='left'style='overflow: hidden;'>" . $package['description'] . "</td><td><a href=".$Uri."?mod=spdx_packageInfoEdit_input&spdxId=" . $_SESSION['spdxId'] . "&pfile=" . $package['pfile_fk'] . " target='newPackageEdit')>Detail/Edit Package</a></td>";
-				$V .= "<td><a href=\"".$Uri."?mod=spdx_fileInfoEdit_list&spdxId=".$_SESSION['spdxId']."&packageInfoPk=" . $package['package_info_pk'] . "\" target='newFileList')>Detail/Edit Files</a></td>\n";
-				$V .= "</tr>";
+	        	$V .= "<tr><td align='left'>" . $package['name'] . "</td><td align='left'>" . $package['version'] . "</td><td align='left'>" . $package['source_info'] . "</td><td align='left'style='overflow: hidden;'>" . $package['description'] . "</td><td><a href=".$Uri."?mod=spdx_packageInfoEdit_input&spdxId=" . $_SESSION['spdxId'] . "&pfile=" . $package['pfile_fk'] . " target='newPackageEdit')>Detail/Edit</a></td>";
+						$V .= "<td nowrap='nowrap'><a href=\"".$Uri."?mod=spdx_fileInfoEdit_list&spdxId=".$_SESSION['spdxId']."&packageInfoPk=" . $package['package_info_pk'] . "\" target='newFileList')>File List</a></td>\n";
+						$V .= "<td nowrap='nowrap'><a href=\"".$Uri."?mod=spdx_extdLicInfoEdit_list&spdxId=".$_SESSION['spdxId']."&packageInfoPk=" . $package['package_info_pk'] . "\" target='newExLicList')>Extracted Lic Info List</a></td>\n";
+						$V .= "</tr>";
 	        }
 	        $V.= "</tbody></table><br>";
 	      }

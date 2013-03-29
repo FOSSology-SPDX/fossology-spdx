@@ -15,7 +15,7 @@
  with this program; if not, contact to the Apache Software Foundation.
 ***********************************************************/
 
-define("TITLE_spdx_extdLicInfoEdit_confirm", _("Extracted Info Edit"));
+define("TITLE_spdx_extdLicInfoEdit_confirm", _("Extracted Lic Info Edit"));
 
 /**
  * \class spdx_extdLicInfoEdit extend from FO_Plugin
@@ -83,6 +83,7 @@ class spdx_extdLicInfoEdit_confirm extends FO_Plugin
         $V.= "$Style<th width='25%'>$text</th>";
         $V.= "<td><input type='hidden' value='$Val' name='licensecomment'>$Val</td>\n";
         $V.= "</tr>\n";
+        $V.= "<tr><td colspan='3' style='background:black;'></td></tr>\n";
         $V.= "</table><P/>";
         $V.= "\n<button type='button' onclick='history.back();'>Back</button>\n";
         $text = _("Update");

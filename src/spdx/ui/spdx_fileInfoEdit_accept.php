@@ -144,8 +144,8 @@ class spdx_fileInfoEdit_accept extends FO_Plugin
 			$Val = htmlentities(GetParm('fileComment', PARM_TEXT), ENT_QUOTES);
 			$V.= "<td><label name='fileComment'>$Val</label></td>\n";
 			$V.= "</tr>\n";
-			
-			$V.= "</tbody></table>\n";
+			$V.= "<tr><td colspan='3' style='background:black;'></td></tr>\n";
+			$V.= "</table><P/>";
 	      $V.= "\n<button type='button' onclick='window.close()'>Close</button>\n";
 			$V.= "</form>\n";
         break;
