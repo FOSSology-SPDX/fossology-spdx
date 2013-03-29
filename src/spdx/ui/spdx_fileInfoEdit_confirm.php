@@ -142,13 +142,13 @@ class spdx_fileInfoEdit_confirm extends FO_Plugin
 			$Val = htmlentities(GetParm('fileComment', PARM_TEXT), ENT_QUOTES);
 			$V.= "<td><input type='hidden' value='$Val' name='fileComment'><label>$Val</label></td>\n";
 			$V.= "</tr>\n";
-			
-			$V.= "</tbody></table>\n";
+			$V.= "<tr><td colspan='3' style='background:black;'></td></tr>\n";
+			$V.= "</table><P/>";
         
        
 		  	$filelistURI = "";
 		    $V.= "\n<button type='button' onclick='history.back();'>Back</button>\n";
-        $text = _("Confirm");
+        $text = _("Update");
         $V.= "\n<input type='submit' value='$text'>\n";
         $V.= "</form>\n";
         break;

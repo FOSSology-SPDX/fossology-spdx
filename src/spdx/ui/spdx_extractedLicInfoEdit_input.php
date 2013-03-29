@@ -15,7 +15,7 @@
  with this program; if not, contact to the Apache Software Foundation.
 ***********************************************************/
 
-define("TITLE_spdx_extdLicInfoEdit_input", _("Extracted Info Edit"));
+define("TITLE_spdx_extdLicInfoEdit_input", _("Extracted Lic Info Edit"));
 
 /**
  * \class spdx_extdLicInfoEdit extend from FO_Plugin
@@ -98,7 +98,7 @@ class spdx_extdLicInfoEdit_input extends FO_Plugin
 		        $Val = GetHistoryBackFormValue($extractedLicInfo[lic_comment],htmlentities(GetParm('licensecomment', PARM_TEXT), ENT_QUOTES));
 		        $V.= "<td><input type='text' value='$Val' name='licensecomment' style='width:95%'></td>\n";
 		        $V.= "</tr>\n";
-		        $V.= "<tr><td colspan='2' style='background:black;'></td></tr>\n";
+		        $V.= "<tr><td colspan='3' style='background:black;'></td></tr>\n";
 		        $V.= "</table><P/>";
 	        }
 	        
