@@ -74,19 +74,9 @@ class spdx_main_page_input extends FO_Plugin
         $V.= "<td><select name='spdxVersion'><option value='SPDX-1.1'>SPDX-1.1</option></select></td>\n";
         $V.= "</tr>\n";
         $Val = htmlentities(GetParm('creator', PARM_TEXT), ENT_QUOTES);
-        $text = _("Creator");
+				$text = _("Creator");
         $V.= "$Style<th width='25%'>$text <font color='red'>*</font></th>";
-        $V.= "<td><input type='text' value='$Val' name='creator' size=20></td>\n";
-        $V.= "</tr>\n";
-        $Val = htmlentities(GetParm('creatorOptional1', PARM_TEXT), ENT_QUOTES);
-        $text = _("Creator optional1");
-        $V.= "$Style<th>$text</th>\n";
-        $V.= "<td><input type='text' name='creatorOptional1' value='$Val' size=20></td>\n";
-        $V.= "</tr>\n";
-        $Val = htmlentities(GetParm('creatorOptional2', PARM_TEXT), ENT_QUOTES);
-        $text = _("Creator optional2");
-        $V.= "$Style<th>$text</th>\n";
-        $V.= "<td><input type='text' name='creatorOptional2' value='$Val' size=20></td>\n";
+        $V.= "<td><textarea cols = '50' rows = '3' name='creator' size=20>$Val</textarea></td>\n";
         $V.= "</tr>\n";
         $Val = htmlentities(GetParm('createdDate', PARM_TEXT), ENT_QUOTES);
         if( empty($Val)) {
