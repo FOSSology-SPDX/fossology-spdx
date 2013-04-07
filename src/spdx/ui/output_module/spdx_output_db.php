@@ -167,9 +167,11 @@ function Spdx_output_tag($SID) {
 		$buffer = $buffer.'DataLicense: '.$creationInfo["data_license"]."\r\n";
 		$buffer = $buffer.'DocumentComment: <text>'.$creationInfo["document_comment"]."</text>\r\n";
 		$buffer = $buffer."\r\n## Creation Information\r\n";
-		$buffer = $buffer.'Creator: '.$creationInfo["creator"]."\r\n";
-		$buffer = $buffer.'Creator: '.$creationInfo["creator_optional1"]."\r\n";
-		$buffer = $buffer.'Creator: '.$creationInfo["creator_optional2"]."\r\n";
+		$creatorInfoArr = explode("\r\n",$creationInfo["creator"]);
+		foreach ($creatorInfoArr as $creatorInfo)
+		{
+			$buffer = $buffer.'Creator: '.$creatorInfo."\r\n";
+		}
 		$createdDate = str_replace(" ","T",$creationInfo["created_date"])."Z";
 		$buffer = $buffer.'Created: '.$createdDate."\r\n";
 		$buffer = $buffer.'CreatorComment: <text>'.$creationInfo["creator_comment"]."</text>\r\n";
@@ -187,14 +189,21 @@ function Spdx_output_tag($SID) {
   	$buffer = $buffer.'PackageName: '.$packageInfo["name"]."\r\n";
 		$buffer = $buffer.'PackageVersion: '.$packageInfo["version"]."\r\n";
 		$buffer = $buffer.'PackageDownloadLocation: '.IsNONE($packageInfo["download_location"])."\r\n";
-		$buffer = $buffer.'PackageSummary: '.$packageInfo["summary"]."\r\n";
+		$buffer = $buffer.'PackageSummary: <text>'.$packageInfo["summary"]."</text>\r\n";
 		$buffer = $buffer.IsOptionalItem('PackageSourceInfo: ',$packageInfo["source_info"],"\r\n");
 		$buffer = $buffer.'PackageFileName: '.$packageInfo["filename"]."\r\n";
 		$buffer = $buffer.'PackageSupplier: '.$packageInfo["supplier_type"].IsNOASSERTION($packageInfo["supplier"])."\r\n";
 		$buffer = $buffer.'PackageOriginator: '.$packageInfo["originator_type"].IsNOASSERTION($packageInfo["originator"])."\r\n";
 		$buffer = $buffer.'PackageChecksum: SHA1: '.$packageInfo["checksum"]."\r\n"; //not perform the following(If the SPDX file is to be included in a package, this value should not be calculated).
-		$buffer = $buffer.'PackageVerificationCode: '.$packageInfo["verificationcode"]."\r\n";
-		$buffer = $buffer.'PackageVerificationCodeExcludedFile: '.$packageInfo["verificationcode_excludedfiles"]."\r\n";
+		$buffer = $buffer.'PackageVerificationCode: '.$packageInfo["verificationcode"];
+		if (!empty($packageInfo["verificationcode_excludedfiles"]))
+		{
+			$buffer = $buffer.'(excludes: '.$packageInfo["verificationcode_excludedfiles"].")\r\n";
+		}
+		else
+		{
+			$buffer = $buffer."\r\n";
+		}
 		$buffer = $buffer.'PackageDescription: <text>'.$packageInfo["description"]."</text>\r\n\r\n";
 		$buffer = $buffer.'PackageCopyrightText: <text>'.IsNONE($packageInfo["package_copyright_text"])."</text>\r\n\r\n";
 		$buffer = $buffer.'PackageLicenseDeclared: '.IsNONEParenthesis($packageInfo["license_declared"])."\r\n";
@@ -226,7 +235,7 @@ function Spdx_output_tag($SID) {
   DBCheckResult($result, $sql, __FILE__, __LINE__);
   while ($fileInfo = pg_fetch_assoc($result))
   {
-  	$buffer = $buffer.'FileName: '.$fileInfo["filename"]."\r\n";
+  	$buffer = $buffer."\r\nFileName: ".$fileInfo["filename"]."\r\n";
 		$buffer = $buffer.'FileType: '.$fileInfo["filetype"]."\r\n";
 		$buffer = $buffer.'FileChecksum: SHA1: '.$fileInfo["checksum"]."\r\n";
 		$buffer = $buffer.'LicenseConcluded: '.IsNONEParenthesis($fileInfo["license_concluded"])."\r\n";
@@ -246,7 +255,7 @@ function Spdx_output_tag($SID) {
 		{
 			$buffer = $buffer.'LicenseInfoInFile: '.IsNONE($licenseInfoInFileArr[0])."\r\n";
 		}
-		$buffer = $buffer.'FileCopyrightText: <text>'.IsNONE($fileInfo["file_copyright_text"])."</text>\r\n\r\n";
+		$buffer = $buffer.'FileCopyrightText: <text>'.IsNONE($fileInfo["file_copyright_text"])."</text>\r\n";
 		$buffer = $buffer.IsOptionalItem('ArtifactOfProjectName: ',$fileInfo["artifact_of_project"],"\r\n");
 		$buffer = $buffer.IsOptionalItem('ArtifactOfProjectHomePage: ',$fileInfo["artifact_of_homepage"],"\r\n");
 		$buffer = $buffer.IsOptionalItem('ArtifactOfProjectURI: ',$fileInfo["artifact_of_url"],"\r\n");
