@@ -504,26 +504,26 @@ function Spdx_insert_update_spdx() {
 				  pg_free_result($resultLicArr);
 				  if (!empty($LicArray))
 					{
-						if (!empty($lrArr))
+  					foreach( $LicArray as $key => $value )
 						{
-							foreach ( $lrArr as $lr)
-	  					{
-	  						foreach( $LicArray as $key => $value )
+							if(!empty($licArrSpdxName[$value]))
+			  			{
+			  				$LicArray[$key] = $licArrSpdxName[$value];
+			  			}
+			  			else
+			  			{
+			  				if (!empty($lrArr))
 								{
-									if($value == $lr['LRName'])
-									{
-										if(!empty($licArrSpdxName[$lr['LRName']]))
-						  			{
-						  				$LicArray[$key] = $licArrSpdxName[$lr['LRName']];
-						  			}
-						  			else
-						  			{
-						  				$LicArray[$key] = $lr['LicenseID'];
-						  			}
-									}
-								}
-	  					}
-	  				}
+									foreach ( $lrArr as $lr)
+			  					{
+					  				if($value == $lr['LRName'])
+										{
+					  					$LicArray[$key] = $lr['LicenseID'];
+					  				}
+					  			}
+				  			}
+			  			}
+						}
 	  				$LicStr = "";
 	  				$first = true;
 	  				$fileLicenseInfoInFile = "";
@@ -536,7 +536,7 @@ function Spdx_insert_update_spdx() {
 						  }
 					    else
 					    {
-					    	$LicStr .= " and ";
+					    	$LicStr .= " and ";  //default conjunctive license
 					    	$delimiter = ",";
 					    }
 					    if ($Lic == $NoLicenseFound)
