@@ -181,7 +181,8 @@ function Spdx_output_tag($SID) {
 	$buffer = $buffer."\r\n## Package Information\r\n";
   //select Package Information
 	$sql = "SELECT * from spdx_package_info 
-	        where package_info_pk=$packageInfoPk and spdx_fk=$spdxId";
+	        where package_info_pk=$packageInfoPk and spdx_fk=$spdxId
+	        order by name";
   $result = pg_query($PG_CONN, $sql);
   DBCheckResult($result, $sql, __FILE__, __LINE__);
   while ($packageInfo = pg_fetch_assoc($result))
@@ -230,7 +231,8 @@ function Spdx_output_tag($SID) {
 	$buffer = $buffer."\r\n## File Information\r\n";
 	//select File Information
 	$sql = "SELECT * from spdx_file_info 
-	        where package_info_fk=$packageInfoPk and spdx_fk=$spdxId";
+	        where package_info_fk=$packageInfoPk and spdx_fk=$spdxId
+	        order by filename";
   $result = pg_query($PG_CONN, $sql);
   DBCheckResult($result, $sql, __FILE__, __LINE__);
   while ($fileInfo = pg_fetch_assoc($result))
@@ -272,7 +274,8 @@ function Spdx_output_tag($SID) {
 	               lic_comment,
 	               rf_text
 	        from spdx_extracted_lic_info, license_ref
-	        where spdx_fk=$spdxId and rf_shortname = licensename";
+	        where spdx_fk=$spdxId and rf_shortname = licensename
+	        order by identifier";
   $result = pg_query($PG_CONN, $sql);
   DBCheckResult($result, $sql, __FILE__, __LINE__);
   while ($extractedLicenseInfo = pg_fetch_assoc($result))
