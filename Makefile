@@ -1,4 +1,4 @@
-# FOSSologySPDX Makefile
+# FOSSology+SPDX (R) Makefile
 # Copyright (C) 2013 University of Nebraska at Omaha.
 
 # pull in all our default variables
