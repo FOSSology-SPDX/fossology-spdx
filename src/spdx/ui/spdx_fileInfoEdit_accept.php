@@ -146,7 +146,7 @@ class spdx_fileInfoEdit_accept extends FO_Plugin
 			$V.= "</tr>\n";
 			$V.= "<tr><td colspan='3' style='background:black;'></td></tr>\n";
 			$V.= "</table><P/>";
-	      $V.= "\n<button type='button' onclick='window.close()'>Close</button>\n";
+	      $V.= "\n<button type='button' onclick='window.close()'>Save</button>\n";
 			$V.= "</form>\n";
         break;
     case "Text":

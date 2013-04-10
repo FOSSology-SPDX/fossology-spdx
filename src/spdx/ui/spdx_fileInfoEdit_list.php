@@ -69,7 +69,8 @@ class spdx_fileInfoEdit_list extends FO_Plugin
 		// getting file name
 		$sql = "select * from spdx_file_info 
 		where package_info_fk = '$Val_packageInfoPk'
-		and  spdx_fk = '$Val_SpdxId'";
+		and  spdx_fk = '$Val_SpdxId'
+		ORDER By filename ";
 				
         $result = pg_query($PG_CONN, $sql);
         DBCheckResult($result, $sql, __FILE__, __LINE__);
@@ -77,6 +78,7 @@ class spdx_fileInfoEdit_list extends FO_Plugin
 			$V.= "<input type='hidden' value='$Val_PackageInfoPk' name='packageInfoPk'/>\n";
 	        $V.= "<input type='hidden' value='$Val_SpdxId' name='spdxId'/>\n";
 		    $V.= "<p>Package: ".$VAL_packageName."</p>";
+			$V.= "\n<button type='button' onclick='window.close()'>Save</button>\n";
 			$V.= "<table border='1' style='width:700px;'>";
 		    $V.= "<tbody><tr><th width='10%'>File Name</th><th width='10%'>File Type</th><th width='10%'>Liscense Concluded</th><th width='10%'>License Info in File</th><th width='10%'>Liscense Comments</th><th width='15%'>File Copyright Text</th><th width='15%'>File Comment</th><th width='10%'>Edit File</th></tr>";
 	        pg_result_seek($result, 0);
@@ -96,7 +98,7 @@ class spdx_fileInfoEdit_list extends FO_Plugin
 	        $V.= "</tbody></table><br>";
 	      }
 	    pg_free_result($result);
-	    $V.= "\n<button type='button' onclick='window.close()'>Close</button>\n";
+	    $V.= "\n<button type='button' onclick='window.close()'>Save</button>\n";
         $V.= "</form>\n";
         
         break;
