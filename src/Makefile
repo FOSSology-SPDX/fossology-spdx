@@ -1,4 +1,4 @@
-# FOSSologySPDX Makefile - src dir
+# FOSSology+SPDX (R) Makefile - src dir
 # Copyright (C) 2013 University of Nebraska at Omaha.
 #
 

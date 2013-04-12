@@ -175,7 +175,7 @@ class spdx_fileInfoEdit_input extends FO_Plugin
 		        $V.= "<tr><td colspan='3' style='background:black;'></td></tr>\n";
 		        $V.= "</table><P/>";
 	        }
-					$V.= "\n<button type='button' onclick='window.close();'>Close</button>\n";
+					$V.= "\n<button type='button' onclick='window.close();'>Cancel</button>\n";
 					$text = _("Next");
 					$V.= "\n<input type='hidden' value='$Val_SpdxId' name='spdxId'>";
 					$V.="<input type='submit' value='$text'>\n";

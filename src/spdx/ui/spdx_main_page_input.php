@@ -25,7 +25,7 @@ class spdx_main_page_input extends FO_Plugin
 {
   public $Name       = "spdx_main_page_input";
   public $Title      = TITLE_spdx_main_page_input;
-  public $MenuList   = "SPDX::Generation";
+  public $MenuList   = "SPDX(R)::Generation";
   public $Version    = "1.1";
   public $DBaccess   = PLUGIN_DB_NONE;
   

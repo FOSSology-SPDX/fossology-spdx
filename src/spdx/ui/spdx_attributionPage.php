@@ -15,16 +15,16 @@
  with this program; if not, contact to the Apache Software Foundation.
 ***********************************************************/
 
-define("TITLE_spdx_fileInfoEdit_list", _("File Info Edit List"));
+define("TITLE_spdx_attributionPage", _("License Attribution Page"));
 
 /**
  * \class spdx_packageInfoEdit extend from FO_Plugin
  * \brief 
  */
-class spdx_fileInfoEdit_list extends FO_Plugin
+class spdx_attributionPage extends FO_Plugin
 {
-  public $Name       = "spdx_fileInfoEdit_list";
-  public $Title      = "SPDX File Edit List";
+  public $Name       = "spdx_attributionPage";
+  public $Title      = "License Attribution Page";
   public $Version    = "1.1";
   public $DBaccess   = PLUGIN_DB_NONE;
   /**
@@ -46,6 +46,8 @@ class spdx_fileInfoEdit_list extends FO_Plugin
         /* If this is a POST, then process the request. */
         $UserId = GetParm('userid', PARM_INTEGER);
         
+		$lastLicense = "";
+		
         /* Build HTML form */
         $Uri = Traceback_uri();
         $V.= "<form name='fileListAll' method='post' action='" . $Uri . "?mod=spdx_fileInfoEdit_input'>\n";
@@ -55,7 +57,7 @@ class spdx_fileInfoEdit_list extends FO_Plugin
 		$_SESSION['spdxId'] = $Val_SpdxId;
 		$_SESSION['packageInfoPk'] = $Val_packageInfoPk;
 		
-		//getting package name
+			//getting package name
 		$sql = "select name from spdx_package_info 
 		where package_info_pk = '$Val_packageInfoPk'";
 		
@@ -66,25 +68,32 @@ class spdx_fileInfoEdit_list extends FO_Plugin
 			$VAL_packageName = $packageInfo['name'];
 	        }
 		}
+		
 		// getting file name
 		$sql = "select * from spdx_file_info 
 		where package_info_fk = '$Val_packageInfoPk'
 		and  spdx_fk = '$Val_SpdxId'
-		ORDER By filename ";
+		ORDER By license_concluded DESC , filename";
 				
         $result = pg_query($PG_CONN, $sql);
         DBCheckResult($result, $sql, __FILE__, __LINE__);
         if (pg_num_rows($result) > 0){
+			$inital = 1;
+			
 			$V.= "<input type='hidden' value='$Val_PackageInfoPk' name='packageInfoPk'/>\n";
 	        $V.= "<input type='hidden' value='$Val_SpdxId' name='spdxId'/>\n";
 		    $V.= "<p>Package: ".$VAL_packageName."</p>";
-			$V.= "\n<button type='button' onclick='window.close()'>Save</button>\n";
-			$V.= "<table border='1' style='width:700px;'>";
-		    $V.= "<tbody><tr><th width='10%'>File Name</th><th width='10%'>File Type</th><th width='10%'>Liscense Concluded</th><th width='10%'>License Info in File</th><th width='10%'>Liscense Comments</th><th width='15%'>File Copyright Text</th><th width='15%'>File Comment</th><th width='10%'>Edit File</th></tr>";
-	        pg_result_seek($result, 0);
+			pg_result_seek($result, 0);
 	        while ($fileInfo = pg_fetch_assoc($result))
 	        {
-
+				if($fileInfo['license_concluded'] != $lastLicense){
+					
+					$V.= "</tbody></table><br>";		
+					$V.="<h2>".$fileInfo['license_concluded']."</h2>";					
+					$V.= "<table border='1' style='width:700px;'>";
+					$V.= "<tbody><tr><th width='10%'>File Name</th><th width='10%'>File Type</th><th width='10%'>Liscense Concluded</th><th width='10%'>License Info in File</th><th width='10%'>Liscense Comments</th><th width='15%'>File Copyright Text</th><th width='15%'>File Comment</th></tr>";
+				}
+				
 		        $V.= "<tr><td width='10%'>".$fileInfo['filename']."</td>";
 						$V.= "<td width='10%'>".$fileInfo['filetype']."</td>";
 						$V.= "<td width='10%'>".$fileInfo['license_concluded']."</td>";
@@ -92,13 +101,12 @@ class spdx_fileInfoEdit_list extends FO_Plugin
 						$V.= "<td width='10%'>".$fileInfo['license_comment']."</td>";
 						$V.= "<td width='15%'>".substr($fileInfo['file_copyright_text'],0,60)." ... </td>";
 						$V.= "<td width='15%' align='left' style='overflow:hidden;'>".$fileInfo['file_comment']."</td>";
-						$V.= "<td width='10%'><a href='".$Uri."?mod=spdx_fileInfoEdit_input&spdxId=" . $_SESSION['spdxId'] . "&packageInfoPk=" . $_SESSION['packageInfoPk'] . "&fileInfoPk=" . $fileInfo['file_info_pk'] ."' target='newFileEdit'>detail/edit</a></td></tr>";
-    
-			}        
-	        $V.= "</tbody></table><br>";
+						    
+				$lastLicense =$fileInfo['license_concluded'];
+			}
+			$V.= "</tbody></table><br>";			
 	      }
 	    pg_free_result($result);
-	    $V.= "\n<button type='button' onclick='window.close()'>Save</button>\n";
         $V.= "</form>\n";
         
         break;
@@ -114,5 +122,5 @@ class spdx_fileInfoEdit_list extends FO_Plugin
   return;
  }
 };
-$NewPlugin = new spdx_fileInfoEdit_list;
+$NewPlugin = new spdx_attributionPage;
 ?>
