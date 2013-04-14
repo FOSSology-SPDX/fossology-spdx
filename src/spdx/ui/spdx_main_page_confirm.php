@@ -65,6 +65,10 @@ class spdx_main_page_confirm extends FO_Plugin
                 window.location.href='spdx-output-module/spdx_main_output_notice2.php?fileSuffix=$_SESSION[fileSuffix]';
                 return true;
               }
+			  else if (document.getElementById('spdxOutputType').value == 'attribution'){
+                window.location.href='spdx-output-module/spdx_main_output_attribution.php?fileSuffix=$_SESSION[fileSuffix]';
+                return true;
+              }
               else {
                 return true;
               }
@@ -73,7 +77,7 @@ class spdx_main_page_confirm extends FO_Plugin
         $V.= "			var spdxVersion = document.getElementById('spdxVersion').value;";
         $V.= "			var creatorRaw = document.getElementById('creator').value;";
         $V.= '			var creator = encodeURIComponent(creatorRaw);';
-	$V.= "			var created_Date = document.getElementById('created_Date').value;";
+				$V.= "			var created_Date = document.getElementById('created_Date').value;";
         $V.= "			var created_Time = document.getElementById('created_Time').value;";
         $V.= "			var dataLicense = document.getElementById('dataLicense').value;";
         $V.= "			var creatorComment = document.getElementById('creatorComment').value;";
@@ -92,7 +96,8 @@ class spdx_main_page_confirm extends FO_Plugin
         $V.= "			var creatorComment = document.getElementById('creatorComment').value;";
         $V.= "			var documentComment = document.getElementById('documentComment').value;";
         $V.= '			var url = "'.$Uri.'?mod=spdx_main_page_input&spdxVersion="+spdxVersion+"&creator="+creator+"&created_Date="+created_Date+"&created_Time="+created_Time+"&dataLicense="+dataLicense+"&creatorComment="+creatorComment+"&documentComment="+documentComment+"&packages="+packages+"";';
-	$V.= '  window.location.assign(url);';
+				$V.= '  window.location.assign(url);';
+        
         $V.= "}";
         $V.= "</script>\n";
         /* Build HTML form */
@@ -111,8 +116,9 @@ class spdx_main_page_confirm extends FO_Plugin
         $Val = htmlentities(GetParm('creator', PARM_TEXT), ENT_QUOTES);
         $text = _("Creator");
         $V.= "$Style<th width='25%'>$text</th>";
-	$V.= "<td><input type='hidden' value='$Val' name='creator' id='creator'>".nl2br($Val)."</td>\n";
-	$V.= "</tr>\n";
+				$V.= "<td><input type='hidden' value='$Val' name='creator' id='creator'>".nl2br($Val)."</td>\n";
+				$V.= "</tr>\n";
+
         $ValDate = htmlentities(GetParm('created_Date', PARM_TEXT), ENT_QUOTES);
         $ValTime = htmlentities(GetParm('created_Time', PARM_TEXT), ENT_QUOTES);
         $text = _("Created Date");
@@ -136,7 +142,7 @@ class spdx_main_page_confirm extends FO_Plugin
         $V.= "</tr>\n";
         $text = _("Output File Type");
         $V.= "$Style<th>$text</th>\n";
-        $V.= "<td><select id='spdxOutputType'><option value='tag'>SPDX-TAG</option><option value='notice'>NOTICE-Format1</option><option value='notice2'>NOTICE-Format2</option></select></td>\n";
+        $V.= "<td><select id='spdxOutputType'><option value='tag'>SPDX-TAG</option><option value='notice'>NOTICE-Format1</option><option value='notice2'>NOTICE-Format2</option><option value='attribution'>License Attribution List</option></select></td>\n";
         $V.= "</tr>\n";
         $V.= "<tr><td colspan='3' style='background:black;'></td></tr>\n";
         $V.= "</table><P/>";
@@ -179,14 +185,13 @@ class spdx_main_page_confirm extends FO_Plugin
     			$Refresh = & $Plugins[plugin_find_id("refresh") ];
         	$URL = Traceback_dir() . "?" . $Refresh->GetRefresh();
 	        $V.= "<table border='1' width='100%'>";
-	        $V.= "<tbody><tr><th width='15%'>Name</th><th width='20%'>Version</th><th width='20%'>Source Info</th><th width='25%'>Description</th><th nowrap='nowrap'>Package Edit</th><th nowrap='nowrap'>File List</th><th nowrap='nowrap'>Extracted Lic Info List</th><th nowrap='nowrap'>License Attribution Document</th></tr>";
+	        $V.= "<tbody><tr><th width='15%'>Name</th><th width='20%'>Version</th><th width='20%'>Source Info</th><th width='25%'>Description</th><th nowrap='nowrap'>Package Edit</th><th nowrap='nowrap'>File List</th><th nowrap='nowrap'>Extracted Lic Info List</th></tr>";
 	        pg_result_seek($result, 0);
 	        while ($package = pg_fetch_assoc($result))
 	        {
 	        	$V .= "<tr><td align='left'>" . $package['name'] . "</td><td align='left'>" . $package['version'] . "</td><td align='left'>" . $package['source_info'] . "</td><td align='left'style='overflow: hidden;'>" . $package['description'] . "</td><td><a href=".$Uri."?mod=spdx_packageInfoEdit_input&spdxId=" . $_SESSION['spdxId'] . "&pfile=" . $package['pfile_fk'] . " target='newPackageEdit')>Detail/Edit</a></td>";
 						$V .= "<td nowrap='nowrap'><a href=\"".$Uri."?mod=spdx_fileInfoEdit_list&spdxId=".$_SESSION['spdxId']."&packageInfoPk=" . $package['package_info_pk'] . "\" target='newFileList')>File List</a></td>\n";
 						$V .= "<td nowrap='nowrap'><a href=\"".$Uri."?mod=spdx_extdLicInfoEdit_list&spdxId=".$_SESSION['spdxId']."&packageInfoPk=" . $package['package_info_pk'] . "\" target='newExLicList')>Extracted Lic Info List</a></td>\n";
-						$V .= "<td nowrap='nowrap'><a href=\"".$Uri."?mod=spdx_attributionPage&spdxId=".$_SESSION['spdxId']."&packageInfoPk=" . $package['package_info_pk'] . "\" target='newAttList')>License Attribution Document</a></td>\n";
 						$V .= "</tr>";
 	        }
 	        $V.= "</tbody></table><br>";
