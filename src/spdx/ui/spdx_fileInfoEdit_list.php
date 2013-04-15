@@ -80,7 +80,7 @@ class spdx_fileInfoEdit_list extends FO_Plugin
 		    $V.= "<p>Package: ".$VAL_packageName."</p>";
 			$V.= "\n<button type='button' onclick='window.close()'>Save</button>\n";
 			$V.= "<table border='1' style='width:700px;'>";
-		    $V.= "<tbody><tr><th width='10%'>File Name</th><th width='10%'>File Type</th><th width='10%'>Liscense Concluded</th><th width='10%'>License Info in File</th><th width='10%'>Liscense Comments</th><th width='15%'>File Copyright Text</th><th width='15%'>File Comment</th><th width='10%'>Edit File</th></tr>";
+		    $V.= "<tbody><tr><th width='10%'>File Name</th><th width='10%'>File Type</th><th width='10%'>License Concluded</th><th width='10%'>License Info In File</th><th width='10%'>License Comments</th><th width='15%'>File Copyright Text</th><th width='15%'>File Comment</th><th width='10%'>Edit File</th></tr>";
 	        pg_result_seek($result, 0);
 	        while ($fileInfo = pg_fetch_assoc($result))
 	        {
@@ -90,7 +90,12 @@ class spdx_fileInfoEdit_list extends FO_Plugin
 						$V.= "<td width='10%'>".$fileInfo['license_concluded']."</td>";
 						$V.= "<td width='10%'>".$fileInfo['license_info_in_file']."</td>";
 						$V.= "<td width='10%'>".$fileInfo['license_comment']."</td>";
+						if(strlen($fileInfo['file_copyright_text'])>60){
 						$V.= "<td width='15%'>".substr($fileInfo['file_copyright_text'],0,60)." ... </td>";
+						}
+						else{
+							$V.= "<td width='15%'>".$fileInfo['file_copyright_text']."</td>";
+						}
 						$V.= "<td width='15%' align='left' style='overflow:hidden;'>".$fileInfo['file_comment']."</td>";
 						$V.= "<td width='10%'><a href='".$Uri."?mod=spdx_fileInfoEdit_input&spdxId=" . $_SESSION['spdxId'] . "&packageInfoPk=" . $_SESSION['packageInfoPk'] . "&fileInfoPk=" . $fileInfo['file_info_pk'] ."' target='newFileEdit'>detail/edit</a></td></tr>";
     

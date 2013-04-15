@@ -38,15 +38,15 @@ function Spdx_output_attribution($SID) {
   $result = pg_query($PG_CONN, $sql);
   DBCheckResult($result, $sql, __FILE__, __LINE__);
   
-  $buffer.= "License,File Name,File Type,Liscense Concluded,License Info in File,Liscense Comments,File Copyright Text,File Comment\r\n";
+  $buffer.= "License,File Name,File Type,License Concluded,License Info In File,License Comments,File Copyright Text,File Comment\r\n";
 	while ($fileInfo = pg_fetch_assoc($result))
 	{
 		if($fileInfo['license_concluded'] != $lastLicense){
 			$buffer.=",,,,,,,\r\n";
 			$buffer.=$fileInfo['license_concluded'].",,,,,,,\r\n";					
 		}
-		
-		$buffer.= ",".checkCsvQuotes($fileInfo['filename']).",";
+		$buffer.=c heckCsvQuotes($fileInfo['license_concluded']).",";
+		$buffer.= checkCsvQuotes($fileInfo['filename']).",";
 		$buffer.= checkCsvQuotes($fileInfo['filetype']).",";
 		$buffer.= checkCsvQuotes($fileInfo['license_concluded']).",";
 		$buffer.= checkCsvQuotes($fileInfo['license_info_in_file']).",";
