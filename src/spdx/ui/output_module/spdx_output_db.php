@@ -45,7 +45,7 @@ function Spdx_output_attribution($SID) {
 			$buffer.=",,,,,,,\r\n";
 			$buffer.=$fileInfo['license_concluded'].",,,,,,,\r\n";					
 		}
-		$buffer.=c heckCsvQuotes($fileInfo['license_concluded']).",";
+		$buffer.= checkCsvQuotes($fileInfo['license_concluded']).",";
 		$buffer.= checkCsvQuotes($fileInfo['filename']).",";
 		$buffer.= checkCsvQuotes($fileInfo['filetype']).",";
 		$buffer.= checkCsvQuotes($fileInfo['license_concluded']).",";
