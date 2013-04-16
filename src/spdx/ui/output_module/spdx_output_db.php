@@ -55,10 +55,29 @@ function Spdx_output_attribution($SID) {
 		$buffer.= checkCsvQuotes($fileInfo['file_comment'])."\r\n";			    
 		$lastLicense =$fileInfo['license_concluded'];
 	}	
-
-  pg_free_result($result);
+	$licenses = array();
 	
-  $fileSuffix = $_SESSION['fileSuffix'];
+	pg_free_result($result);
+	
+	//select license info and license name
+	$sql = "select * from spdx_extracted_lic_info
+		where spdx_fk = '$spdxId'";
+		
+	$result = pg_query($PG_CONN, $sql);
+	DBCheckResult($result, $sql, __FILE__, __LINE__);
+  
+	while ($fileInfo = pg_fetch_assoc($result))
+	{
+		$licenses[$fileInfo['identifier']] = $fileInfo['licensename'];
+	}	
+	
+	foreach ($licenses as $key => $value){
+		$pattern = '/LicenseRef-'.$key.'/';
+		$replacement = "$value";
+		$buffer = preg_replace($pattern, $replacement, $buffer);
+	}
+	
+	$fileSuffix = $_SESSION['fileSuffix'];
 	if ( strlen($buffer) == 0){
 		$buffer = $NOVALIDINFO;
 	}
