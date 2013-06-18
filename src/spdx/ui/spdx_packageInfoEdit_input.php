@@ -139,7 +139,8 @@ class spdx_packageInfoEdit_input extends FO_Plugin
 		        $V.= "</tr>\n";
 		        $text = _("Package Checksum");
 		        $V.= "$Style<th width='25%'>$text</th>";
-		        $V.= "<td><input type='hidden' value='$packageInfo[checksum]' name='packagechecksum' id='packagechecksum'>$packageInfo[checksum]</td>\n";
+				$lowercaseChecksum = strtolower($packageInfo[checksum]);
+		        $V.= "<td><input type='hidden' value='$packageInfo[checksum]' name='packagechecksum' id='packagechecksum'>$lowercaseChecksum</td>\n";
 		        $V.= "</tr>\n";
 		        $text = _("Package Verification Code");
 		        $V.= "$Style<th width='25%'>$text</th>";
