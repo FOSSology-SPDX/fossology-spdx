@@ -88,9 +88,10 @@ class spdx_packageInfoEdit_confirm extends FO_Plugin
         $V.= "<td><input type='hidden' value='$Val' name='packagedownloadlocation'>$Val</td>\n";
         $V.= "</tr>\n";
         $Val = htmlentities(GetParm('packagechecksum', PARM_TEXT), ENT_QUOTES);
+		$lowercaseChecksum = strtolower($Val);
         $text = _("Package Checksum");
         $V.= "$Style<th width='25%'>$text</th>";
-        $V.= "<td><input type='hidden' value='$Val' name='packagechecksum'>$Val</td>\n";
+        $V.= "<td><input type='hidden' value='$Val' name='packagechecksum'>$lowercaseChecksum</td>\n";
         $V.= "</tr>\n";
         $Val = htmlentities(GetParm('packageverificationcode', PARM_TEXT), ENT_QUOTES);
         $text = _("Package Verification Code");

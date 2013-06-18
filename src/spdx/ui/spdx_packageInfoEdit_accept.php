@@ -87,9 +87,10 @@ class spdx_packageInfoEdit_accept extends FO_Plugin
         $V.= "<td>$Val</td>\n";
         $V.= "</tr>\n";
         $Val = htmlentities(GetParm('packagechecksum', PARM_TEXT), ENT_QUOTES);
+		$lowercaseChecksum = strtolower($Val);
         $text = _("Package Checksum");
         $V.= "$Style<th width='25%'>$text</th>";
-        $V.= "<td>$Val</td>\n";
+        $V.= "<td>$lowercaseChecksum</td>\n";
         $V.= "</tr>\n";
         $Val = htmlentities(GetParm('packageverificationcode', PARM_TEXT), ENT_QUOTES);
         $text = _("Package Verification Code");
