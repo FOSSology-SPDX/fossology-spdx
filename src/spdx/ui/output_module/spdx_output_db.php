@@ -276,7 +276,7 @@ function Spdx_output_tag($SID) {
 		$buffer = $buffer.'PackageFileName: '.$packageInfo["filename"]."\r\n";
 		$buffer = $buffer.'PackageSupplier: '.$packageInfo["supplier_type"].IsNOASSERTION($packageInfo["supplier"])."\r\n";
 		$buffer = $buffer.'PackageOriginator: '.$packageInfo["originator_type"].IsNOASSERTION($packageInfo["originator"])."\r\n";
-		$buffer = $buffer.'PackageChecksum: SHA1: '.$packageInfo["checksum"]."\r\n"; //not perform the following(If the SPDX file is to be included in a package, this value should not be calculated).
+		$buffer = $buffer.'PackageChecksum: SHA1: '.strtolower($packageInfo["checksum"])."\r\n"; //not perform the following(If the SPDX file is to be included in a package, this value should not be calculated).
 		$buffer = $buffer.'PackageVerificationCode: '.$packageInfo["verificationcode"];
 		if (!empty($packageInfo["verificationcode_excludedfiles"]))
 		{
@@ -320,7 +320,7 @@ function Spdx_output_tag($SID) {
   {
   	$buffer = $buffer."\r\nFileName: ".$fileInfo["filename"]."\r\n";
 		$buffer = $buffer.'FileType: '.$fileInfo["filetype"]."\r\n";
-		$buffer = $buffer.'FileChecksum: SHA1: '.$fileInfo["checksum"]."\r\n";
+		$buffer = $buffer.'FileChecksum: SHA1: '.strtolower($fileInfo["checksum"])."\r\n";
 		$buffer = $buffer.'LicenseConcluded: '.IsNONEParenthesis($fileInfo["license_concluded"])."\r\n";
 
 		$licenseInfoInFileArr = explode(",",$fileInfo["license_info_in_file"]);

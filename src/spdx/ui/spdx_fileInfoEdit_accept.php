@@ -86,7 +86,8 @@ class spdx_fileInfoEdit_accept extends FO_Plugin
 			$text = _("Checksum");
 			$V.= "$Style<th width='25%'>$text</th>";
 			$Val = htmlentities(GetParm('checksum', PARM_TEXT), ENT_QUOTES);
-		    $V.= "<td><input type='hidden' value='$Val' name='checksum'/><label >$Val</label></td>\n";
+			$lowercaseChecksum = strtolower($Val);
+		    $V.= "<td><input type='hidden' value='$Val' name='checksum'/><label >$lowercaseChecksum</label></td>\n";
 			$V.= "</tr>\n";
 			
 			//license concluded

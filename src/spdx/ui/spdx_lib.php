@@ -18,9 +18,13 @@ function getVerificationCode($SpdxId,$packageId,$excludedfiles) {
 		global $PG_CONN;
 		
 		// select spdx_file_info table
-		$sql = "select filename,checksum from spdx_file_info
+		$sql = "select filename,checksum from spdx_file_info, pfile,uploadtree
 		            where spdx_fk = $SpdxId
-		            	and package_info_fk = $packageId";
+		            	and package_info_fk = $packageId
+						and checksum = pfile_sha1
+		            	and pfile_pk = pfile_fk
+		            	and (ufile_mode & (1<<29) = 0)
+		            	group by filename,checksum";
 
 		$filesSha1Result = pg_query($PG_CONN, $sql);
     DBCheckResult($filesSha1Result, $sql, __FILE__, __LINE__);
@@ -66,7 +70,7 @@ function getVerificationCode($SpdxId,$packageId,$excludedfiles) {
 		{ 
 			$filelist = $filelist.$templist[$i]; 
 		} 
-		$verificationCode = SHA1($filelist);
+		$verificationCode = SHA1(strtolower($filelist));
 		pg_result_seek($filesSha1Result, 0);
 		return $verificationCode;
 }
@@ -351,7 +355,7 @@ function Spdx_insert_update_spdx() {
 					$packageFileName = $packages['filename'];
 					$packageSupplier = "";
 					$packageOriginator = "";
-					$packageChecksum = $packages['pfile_sha1'];
+					$packageChecksum = strtolower($packages['pfile_sha1']);
 					//default excluded files
 					$excludesFile = "*.spdx";
 					$packageLicComment = "";
@@ -371,7 +375,7 @@ function Spdx_insert_update_spdx() {
 					{
 						if ( substr($excludesFile,2) != substr(strrchr($row['ufile_name'],"."),1))
 						{
-						$templist[] = $row['pfile_sha1'];
+						$templist[] = strtolower($row['pfile_sha1']);
 					}
 					}
 					sort($templist);
@@ -411,6 +415,10 @@ function Spdx_insert_update_spdx() {
 					{
 						$packageLicenseConcluded = "";
 					}
+					//regarding to feedback from 2013bakeoff, concluded license should be empty,meanwhile scanned license information will be shown in Declared license. So here we exchange these
+					$packageLicenseDeclared = $packageLicenseConcluded;
+					$packageLicenseConcluded = "";
+
 					//get new package_info_pk
 					$sql = "select max(package_info_pk) as package_info_pk from spdx_package_info";
 					$resultMaxPk = pg_query($PG_CONN, $sql);
