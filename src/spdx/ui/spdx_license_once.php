@@ -1,19 +1,18 @@
 <?php
 /***********************************************************
- Copyright (C) 2008-2013 Hewlett-Packard Development Company, L.P.
-
+ Copyright (C) 2013 University of Nebraska at Omaha.
+ 
  This program is free software; you can redistribute it and/or
- modify it under the terms of the GNU General Public License
- version 2 as published by the Free Software Foundation.
-
+ modify it under the terms of the Apache License, Version 2.0
+ as published by the Apache Software Foundation.
+ 
  This program is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License along
- with this program; if not, write to the Free Software Foundation, Inc.,
- 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ Apache License for more details.
+ 
+ You should have received a copy of the Apache License along
+ with this program; if not, contact to the Apache Software Foundation.
 ***********************************************************/
 
 /**
@@ -67,6 +66,15 @@ class spdx_license_once extends FO_Plugin {
         }
     }
 	}
+	function get_file_type($file)
+	{
+	  if(function_exists('shell_exec') === TRUE) {
+	    $dump = shell_exec(sprintf('file -bi %s', $file));
+	    $info = explode(';', $dump);
+	    return $info[0];
+	  }
+	  return FALSE;
+	}
   function AnalyzeFile($PackagePath) {
      
     global $SYSCONFDIR;
@@ -76,55 +84,126 @@ class spdx_license_once extends FO_Plugin {
     $licenseResult = "";
     // unpack package
     $subName = time().rand();
-    //$subName = "";
-    //echo "subName is $subName\n";
     $ununpackResult = exec("$SYSCONFDIR/mods-enabled/ununpack/agent/ununpack -C -m 2 -d $SYSCONFDIR/mods-enabled/spdx/ui/output_file/output_spdx_license_once_$subName -R $PackagePath",$out,$rtn);
-    //$ununpackResult = exec("$SYSCONFDIR/mods-enabled/ununpack/agent/ununpack -C -d $SYSCONFDIR/mods-enabled/spdx/ui/output_file/output_spdx_license_once_$subName -R $PackagePath",$out,$rtn);
-    //exec("/etc/fossology/mods-enabled/ununpack/agent/ununpack -d /usr/share/fossology/spdx/ui/output_file/output_spdx_license_once -R /tmp/fosslic-alo-rTutZc",$out,$rtn);
-    //$ununpackResult = exec("sudo /usr/share/fossology/ununpack/agent/ununpack -d /home/liangcao/output_spdx_license_once -R $PackagePath",$out,$rtn);
     $chmodResult = exec("chmod 777 -R $SYSCONFDIR/mods-enabled/spdx/ui/output_file/output_spdx_license_once_$subName",$out,$rtn);
     $treeResult = $this->tree("$SYSCONFDIR/mods-enabled/spdx/ui/output_file/output_spdx_license_once_$subName");
     $licenseArr = array();
-    //echo "FileList is: \n";
-    //print_r($this->FileList);
-    //$licenseOutArr = array();
+    $SOURCEArr = array("application/x-debian-source",
+												"text/plain",
+												"text/x-c++",
+												"text/x-shellscript",
+												"text/x-php",
+												"text/x-c",
+												"application/x-wais-source",
+												"text/x-csrc",
+												"text/x-c++src",
+												"text/x-chdr",
+												"text/x-diff",
+												"application/xml",
+												"application/x-sh",
+												"text/html",
+												"text/x-pascal",
+												"text/x-makefile",
+												"text/x-perl",
+												"text/x-fortran",
+												"text/x-awk",
+												"text/x-m4",
+												"text/x-python",
+												"application/x-info",
+												"text/x-msdos-batch",
+												"text/x-java",
+												"text/css",
+												"text/cache-manifest",
+												"application/javascript",
+												"application/x-python-code");
+    $BINARYArr = array("application/octet-stream",
+												"text/x-tex");
+    $ARCHIVEArr = array("application/x-gzip",
+												"application/x-compress",
+												"application/x-bzip",
+												"application/x-bzip2",
+												"application/x-zip",
+												"application/zip",
+												"application/x-tar",
+												"application/x-gtar",
+												"application/x-cpio",
+												"application/x-rar",
+												"application/x-cab",
+												"application/x-7z-compressed",
+												"application/x-7z-w-compressed",
+												"application/x-rpm",
+												"application/x-archive",
+												"application/x-debian-package");
     foreach($this->FileList as $FilePath)
     {
-    	//$licenseOut = array();
     	$FilePath = str_replace("//","/",$FilePath);
-    	//echo "\n $FilePath \n";
-    	/* move the temp file */
-    	/*
-    	$this->WriteFile($FilePath,'/usr/share/fossology/spdx/ui/output_file/output.log');
     	
-	    $licenseResult = exec("$SYSCONFDIR/mods-enabled/nomos/agent/nomos $FilePath",$licenseOut,$rtn);
-	    $licenseOutArr[] = $licenseOut;
-	  }
-	  foreach($licenseOutArr as $licenseInFile)
-	  {
-	  	$this->WriteFile($licenseInFile,'/usr/share/fossology/spdx/ui/output_file/output_license.log');
-	  }*/
-	    
-	    $licenseResult = exec("$SYSCONFDIR/mods-enabled/nomos/agent/nomos $FilePath",$licenseOut,$rtn);
-	  }
-	  //print_r($licenseOut);
-	  foreach($licenseOut as $licenseInFile)
-	  {
-	  	if (!strpos($licenseInFile,"is not a plain file"))
-	  	{
-		  	$licensesInFile = trim(end(explode('contains license(s)',$licenseInFile))); //delete space
-		  	$licensesInFileArr = explode(",", $licensesInFile);  
-		  	$licenseArr = array_merge($licenseArr, $licensesInFileArr);
+    	$licenseResult = exec("$SYSCONFDIR/mods-enabled/nomos/agent/nomos $FilePath",$licenseOut,$rtn);
+	    foreach($licenseOut as $licenseInFile)
+		  {
+		  	if (!strpos($licenseInFile,"is not a plain file"))
+		  	{
+			  	$licensesInFile = trim(end(explode('contains license(s)',$licenseInFile))); //delete space
+			  }
 		  }
+		  
+		  // Get FileCopyrightText
+		  $copyrightOut = array();
+	    $copyrightResult = exec("$SYSCONFDIR/mods-enabled/copyright/agent/copyright -C $FilePath",$copyrightOut,$rtn);
+	    $copyrightText = "";
+	    foreach($copyrightOut as $copyrightInFile)
+		  {
+		  	$copyrightBeginLineArr = preg_split("/\[\d{1,}\:\d{1,}\:\w*]\s'/",$copyrightInFile);
+		  	if (count($copyrightBeginLineArr) > 1)
+		  	{
+		  		$copyright = end($copyrightBeginLineArr); //delete comment
+				  $copyright = reset(preg_split("/'$/",$copyright)); //delete end ' mark
+				  $copyrightText = $copyrightText.$copyright."\r\n";
+		  	}
+		  	else
+		  	{
+		  		$copyrightEndLineArr = preg_split("/\:\:$/",$copyrightInFile);
+		  		if (count($copyrightEndLineArr) < 2)
+		  		{
+		  			$copyright = reset(preg_split("/'$/",reset($copyrightEndLineArr))); //delete end ' mark
+					  $copyrightText = $copyrightText.$copyright."\r\n";
+		  		}
+		  	}
+		  }
+		  $copyrightText = substr($copyrightText,0,strlen($copyrightText)-2);
+			if (empty($copyrightText))
+			{
+				$copyrightText = "NONE";
+			}
+			
+			// Get FileType
+	    $fileType = $this->get_file_type($FilePath);
+	    if (in_array($fileType,$SOURCEArr))
+      {
+			    $fileType = 'SOURCE';
+			}
+			else if (in_array( $fileType,$BINARYArr))
+			{
+					$fileType = 'BINARY';
+			}
+			else if (in_array( $fileType,$ARCHIVEArr))
+			{
+					$fileType = 'ARCHIVE';
+			}
+			else
+			{
+					$fileType = 'OTHER';
+			}
+			// Get FileName
+			$fileName = basename($FilePath);
+		  echo "FileName: ".$fileName."\r\n";
+			echo "FileType: ".$fileType."\r\n";
+			echo "FileChecksum: SHA1: ".strtolower(sha1($FilePath))."\r\n";
+			echo "LicenseConcluded: NOASSERTION"."\r\n";
+			echo "LicenseInfoInFile: ".$licensesInFile."\r\n";
+			echo "FileCopyrightText: <text>".$copyrightText."</text>"."\r\n";
+			echo "\r\n";
 	  }
-	  $uniqued_licenseArr = array_unique($licenseArr);
-	  sort($uniqued_licenseArr);
-	  echo "===PACKAGE LEVEL INFO===============================\n";
-	  echo "SPDXVersion: SPDX-1.1\n";
-		echo "DataLicense: CC0-1.0\n";
-	  echo "Package License Info From Files: ".implode(",",$uniqued_licenseArr);
-	  echo "\n";
-	  echo "====================================================\n";
 	  exec("rm -R $SYSCONFDIR/mods-enabled/spdx/ui/output_file/output_spdx_license_once_$subName",$out,$rtn);
     return;
 
