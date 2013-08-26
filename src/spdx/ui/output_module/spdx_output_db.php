@@ -14,6 +14,87 @@
  You should have received a copy of the Apache License along
  with this program; if not, contact to the Apache Software Foundation.
 ***********************************************************/
+function Spdx_output_attribution($SID) {
+	session_id($SID);
+	session_start();
+	include('../../../lib/php/common-db.php');
+	$PG_CONN =  DBconnect("/etc/fossology/"); // install from package
+  //$PG_CONN =  DBconnect("/usr/local/etc/fossology/"); // install from source
+	$UNKNOWN = 'UNKNOWN';
+	$NONE = 'NONE';
+	$LICENSE_NOMOS="License by Nomos.";
+	$spdxId = $_SESSION['spdxId'];
+	$packageInfoPk = $_SESSION['packageInfoPk'];
+	$buffer = "";
+	$lastLicense =
+	
+	
+	//File Information
+	//select File Information
+	$sql = "select * from spdx_file_info 
+		where package_info_fk = '$packageInfoPk'
+		and  spdx_fk = '$spdxId'
+		ORDER By license_concluded DESC , filename";
+  $result = pg_query($PG_CONN, $sql);
+  DBCheckResult($result, $sql, __FILE__, __LINE__);
+  
+  $buffer.= "License,File Name,File Type,License Concluded,License Info In File,License Comments,File Copyright Text,File Comment\r\n";
+	while ($fileInfo = pg_fetch_assoc($result))
+	{
+		if($fileInfo['license_concluded'] != $lastLicense){
+			$buffer.=",,,,,,,\r\n";
+			$buffer.=$fileInfo['license_concluded'].",,,,,,,\r\n";					
+		}
+		$buffer.= checkCsvQuotes($fileInfo['license_concluded']).",";
+		$buffer.= checkCsvQuotes($fileInfo['filename']).",";
+		$buffer.= checkCsvQuotes($fileInfo['filetype']).",";
+		$buffer.= checkCsvQuotes($fileInfo['license_concluded']).",";
+		$buffer.= checkCsvQuotes($fileInfo['license_info_in_file']).",";
+		$buffer.= checkCsvQuotes($fileInfo['license_comment']).",";
+		$buffer.= checkCsvQuotes($fileInfo['file_copyright_text']).",";
+		$buffer.= checkCsvQuotes($fileInfo['file_comment'])."\r\n";			    
+		$lastLicense =$fileInfo['license_concluded'];
+	}	
+	$licenses = array();
+
+  pg_free_result($result);
+	
+	//select license info and license name
+	$sql = "select * from spdx_extracted_lic_info
+		where spdx_fk = '$spdxId'";
+		
+	$result = pg_query($PG_CONN, $sql);
+	DBCheckResult($result, $sql, __FILE__, __LINE__);
+  
+	while ($fileInfo = pg_fetch_assoc($result))
+	{
+		$licenses[$fileInfo['identifier']] = $fileInfo['license_display_name'];
+	}	
+	
+	foreach ($licenses as $key => $value){
+		$pattern = '/LicenseRef-'.$key.'/';
+		$replacement = "$value";
+		$buffer = preg_replace($pattern, $replacement, $buffer);
+	}
+	
+  $fileSuffix = $_SESSION['fileSuffix'];
+	if ( strlen($buffer) == 0){
+		$buffer = $NOVALIDINFO;
+	}
+	//write tag file
+	WriteFile($buffer,'/../output_file/attribution'.$fileSuffix.'.csv');
+}
+
+function checkCsvQuotes($string) {
+    if (strpos($string,'"') !== false) {
+        return '"'.str_replace('"','""',$string).'"';
+    } elseif (strpos($string,',') !== false || strpos($string,"\n") !== false) {
+        return '"'.$string.'"';
+    } else {
+        return $string;
+    }
+}
+
 function Spdx_output_notice($SID) {
 	session_id($SID);
 	session_start();

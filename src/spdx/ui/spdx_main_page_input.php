@@ -25,7 +25,7 @@ class spdx_main_page_input extends FO_Plugin
 {
   public $Name       = "spdx_main_page_input";
   public $Title      = TITLE_spdx_main_page_input;
-  public $MenuList   = "SPDX(R)::Generation";
+  public $MenuList   = "SPDX::Generation";
   public $Version    = "1.1";
   public $DBaccess   = PLUGIN_DB_NONE;
   
@@ -135,6 +135,10 @@ class spdx_main_page_input extends FO_Plugin
         $text = _("Next");
         $V.= "\n<input type='submit' value='$text'>\n";
         $V.= "</form>\n";
+        $text = "SPDX (The Software Package Data Exchange) specification is a standard format for communicating the components, licenses and copyrights associated with a software package. For more information, visit: ";
+        $URL = "http://www.spdx.org";
+        $textURL = "http://www.spdx.org";
+        $V .= "$text<a href='$URL'target='_blank'>$textURL</a> \n";
         break;
     case "Text":
       break;
