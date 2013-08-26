@@ -33,7 +33,8 @@ class spdx_license_once extends FO_Plugin {
   /** For anyone to access, without login, use: **/
   public $DBaccess   = PLUGIN_DB_NONE;
   public $LoginFlag  = 0;
-	public $FileList = array();
+  public $FileList = array();
+  public $copyrightOutputFlag = "";
 	
   /**
    * \biref travers all files in unpacked component.
@@ -52,13 +53,17 @@ class spdx_license_once extends FO_Plugin {
             {
             	  if((is_dir($dir."/".$file)) && $file!="." && $file!="..")
                 {
-                    $this->tree($dir."/".$file."/");
+                		if(substr_count($dir."/".$file,"/".$file)<20)
+                		{
+                    	$this->tree($dir."/".$file."/");
+                    }
                 }
                 else
                 {
                     if($file!="." && $file!="..")
                     {
-                        $this->FileList[] = $dir.$file;
+                        $this->FileList[] = $dir."/".$file;
+                        //echo "Path :".$dir.$file." is put in the tree \r\n";
                     }
                 }
             }
@@ -78,16 +83,50 @@ class spdx_license_once extends FO_Plugin {
   function AnalyzeFile($PackagePath) {
      
     global $SYSCONFDIR;
-
     $licenses = array();
 
     $licenseResult = "";
     // unpack package
     $subName = time().rand();
-    $ununpackResult = exec("$SYSCONFDIR/mods-enabled/ununpack/agent/ununpack -C -m 2 -d $SYSCONFDIR/mods-enabled/spdx/ui/output_file/output_spdx_license_once_$subName -R $PackagePath",$out,$rtn);
+    // get option ofr recursive unpack the scanning object: true-> recursive unpack; otherwise no recursive unpack;
+    $recursiveUnpackFlag = GetParm("recursiveUnpack", PARM_STRING);
+    if ($recursiveUnpackFlag == "true")
+		{
+			$ununpackResult = exec("$SYSCONFDIR/mods-enabled/ununpack/agent/ununpack -d $SYSCONFDIR/mods-enabled/spdx/ui/output_file/output_spdx_license_once_$subName -CRX $PackagePath",$out,$rtn);
+		}
+		else
+		{
+	    exec("mkdir $SYSCONFDIR/mods-enabled/spdx/ui/output_file/output_spdx_license_once_$subName",$out,$rtn);
+	    unset($rtn);
+	    // unpack gz file
+	    exec("tar -zxvf $PackagePath -C $SYSCONFDIR/mods-enabled/spdx/ui/output_file/output_spdx_license_once_$subName",$out,$rtn);
+	    if ($rtn != 0)
+	    {
+	    	// unpack bz2 file
+	    	exec("tar -jxvf $PackagePath -C $SYSCONFDIR/mods-enabled/spdx/ui/output_file/output_spdx_license_once_$subName",$out,$rtn);
+	    	if ($rtn != 0)
+	    	{
+	    		// unpack tar file
+	    		exec("tar -xvf $PackagePath -C $SYSCONFDIR/mods-enabled/spdx/ui/output_file/output_spdx_license_once_$subName",$out,$rtn);
+	    		if ($rtn != 0)
+	    		{
+	    			// unpack zip file
+	    			exec("unzip $PackagePath -d $SYSCONFDIR/mods-enabled/spdx/ui/output_file/output_spdx_license_once_$subName",$out,$rtn);
+	    			if ($rtn != 0)
+	    			{
+	    				echo "FATAL: your file does not belong to specific type.  Make sure this your file belongs to gz,bz2,zip or tar format.";
+				    	exec("rm -R $SYSCONFDIR/mods-enabled/spdx/ui/output_file/output_spdx_license_once_$subName",$out,$rtn);
+				    	return;
+	    			}
+	    		}
+	    	}
+	    }
+		}
+    //$ununpackResult = exec("$SYSCONFDIR/mods-enabled/ununpack/agent/ununpack -d $SYSCONFDIR/mods-enabled/spdx/ui/output_file/output_spdx_license_once_$subName -CRX $PackagePath",$out,$rtn);
     $chmodResult = exec("chmod 777 -R $SYSCONFDIR/mods-enabled/spdx/ui/output_file/output_spdx_license_once_$subName",$out,$rtn);
     $treeResult = $this->tree("$SYSCONFDIR/mods-enabled/spdx/ui/output_file/output_spdx_license_once_$subName");
     $licenseArr = array();
+    $PIPEArr = array("inode/fifo");
     $SOURCEArr = array("application/x-debian-source",
 												"text/plain",
 												"text/x-c++",
@@ -134,71 +173,113 @@ class spdx_license_once extends FO_Plugin {
 												"application/x-rpm",
 												"application/x-archive",
 												"application/x-debian-package");
-    foreach($this->FileList as $FilePath)
+    $copyrightOutputFlag = GetParm("noCopyright", PARM_STRING);
+		foreach($this->FileList as $FilePath)
     {
     	$FilePath = str_replace("//","/",$FilePath);
-    	
-    	$licenseResult = exec("$SYSCONFDIR/mods-enabled/nomos/agent/nomos $FilePath",$licenseOut,$rtn);
-	    foreach($licenseOut as $licenseInFile)
-		  {
-		  	if (!strpos($licenseInFile,"is not a plain file"))
-		  	{
-			  	$licensesInFile = trim(end(explode('contains license(s)',$licenseInFile))); //delete space
-			  }
-		  }
-		  
-		  // Get FileCopyrightText
-		  $copyrightOut = array();
-	    $copyrightResult = exec("$SYSCONFDIR/mods-enabled/copyright/agent/copyright -C $FilePath",$copyrightOut,$rtn);
-	    $copyrightText = "";
-	    foreach($copyrightOut as $copyrightInFile)
-		  {
-		  	$copyrightBeginLineArr = preg_split("/\[\d{1,}\:\d{1,}\:\w*]\s'/",$copyrightInFile);
-		  	if (count($copyrightBeginLineArr) > 1)
-		  	{
-		  		$copyright = end($copyrightBeginLineArr); //delete comment
-				  $copyright = reset(preg_split("/'$/",$copyright)); //delete end ' mark
-				  $copyrightText = $copyrightText.$copyright."\r\n";
-		  	}
-		  	else
-		  	{
-		  		$copyrightEndLineArr = preg_split("/\:\:$/",$copyrightInFile);
-		  		if (count($copyrightEndLineArr) < 2)
-		  		{
-		  			$copyright = reset(preg_split("/'$/",reset($copyrightEndLineArr))); //delete end ' mark
-					  $copyrightText = $copyrightText.$copyright."\r\n";
-		  		}
-		  	}
-		  }
-		  $copyrightText = substr($copyrightText,0,strlen($copyrightText)-2);
-			if (empty($copyrightText))
-			{
-				$copyrightText = "NONE";
-			}
-			
-			// Get FileType
-	    $fileType = $this->get_file_type($FilePath);
+    	// Get FileType
+			$fileType = $this->get_file_type($FilePath);
 	    if (in_array($fileType,$SOURCEArr))
       {
 			    $fileType = 'SOURCE';
 			}
-			else if (in_array( $fileType,$BINARYArr))
+			else if (in_array($fileType,$BINARYArr))
 			{
 					$fileType = 'BINARY';
 			}
-			else if (in_array( $fileType,$ARCHIVEArr))
+			else if (in_array($fileType,$ARCHIVEArr))
 			{
 					$fileType = 'ARCHIVE';
+			}
+			else if (in_array($fileType,$PIPEArr))
+			{
+					$fileType = 'PIPE';
 			}
 			else
 			{
 					$fileType = 'OTHER';
 			}
+    	//echo "File working on: ".$FilePath."\r\n";
+    	//echo "Start to get license\r\n";
+    	if ($fileType == "PIPE")
+    	{
+    		$licensesInFile = "NOASSERTION";
+    		$copyrightText = "NOASSERTION";
+    	}
+    	else
+    	{
+	    	$licenseResult = exec("$SYSCONFDIR/mods-enabled/nomos/agent/nomos $FilePath",$licenseOut,$rtn);
+	    	foreach($licenseOut as $licenseInFile)
+			  {
+			  	if (strpos($licenseInFile,"is not a plain file")=== false)
+			  	{
+				  	$licensesInFile = trim(end(explode('contains license(s)',$licenseInFile))); //delete space
+				  }
+				  else
+				  {
+				  	$licensesInFile = "NOASSERTION"; //"is not a plain file"
+				  }
+			  }
+			  //echo "Gotten license: ".$licensesInFile."\r\n";
+			  unset($licenseOut);
+			  
+				// Get FileCopyrightText
+				if ($copyrightOutputFlag == "true")
+				{
+					$copyrightText = "NOASSERTION";
+				}
+				else
+				{
+		
+					$copyrightOut = array();
+					$copyrightResult = exec("$SYSCONFDIR/mods-enabled/copyright/agent/copyright -C $FilePath",$copyrightOut,$rtn);
+					$copyrightText = "";
+					foreach($copyrightOut as $copyrightInFile)
+					  {
+						$copyrightBeginLineArr = preg_split("/\[\d{1,}\:\d{1,}\:\w*]\s'/",$copyrightInFile);
+						if (count($copyrightBeginLineArr) > 1)
+						{
+							$copyright = end($copyrightBeginLineArr); //delete comment
+							  $copyright = reset(preg_split("/'$/",$copyright)); //delete end ' mark
+							  $copyrightText = $copyrightText.$copyright."\r\n";
+						}
+						else
+						{
+							$copyrightEndLineArr = preg_split("/\:\:$/",$copyrightInFile);
+							if (count($copyrightEndLineArr) < 2)
+							{
+								$copyright = reset(preg_split("/'$/",reset($copyrightEndLineArr))); //delete end ' mark
+								  $copyrightText = $copyrightText.$copyright."\r\n";
+							}
+						}
+					  }
+					  $copyrightText = substr($copyrightText,0,strlen($copyrightText)-2);
+					if (empty($copyrightText))
+					{
+						$copyrightText = "NONE";
+					}
+				}
+			}
 			// Get FileName
 			$fileName = basename($FilePath);
-		  echo "FileName: ".$fileName."\r\n";
+			// Get SHA1
+			if ($fileType == "PIPE")
+			{
+				$fileSHA1 = sha1("");
+			}
+			else
+			{
+			$fileSHA1 = sha1_file($FilePath);
+				/*
+				if ($fileSHA1 ===false)
+				{
+					$fileSHA1 = sha1("");
+				}
+				*/
+			}
+			echo "FileName: ".$fileName."\r\n";
 			echo "FileType: ".$fileType."\r\n";
-			echo "FileChecksum: SHA1: ".strtolower(sha1($FilePath))."\r\n";
+			echo "FileChecksum: SHA1: ".strtolower($fileSHA1)."\r\n";
 			echo "LicenseConcluded: NOASSERTION"."\r\n";
 			echo "LicenseInfoInFile: ".$licensesInFile."\r\n";
 			echo "FileCopyrightText: <text>".$copyrightText."</text>"."\r\n";
@@ -227,7 +308,7 @@ class spdx_license_once extends FO_Plugin {
     else {
       $ThisMod = 0;
     }
-    /*
+	  /*
      * This if stmt is true only for wget.
      * For wget, populate the $_FILES array, just like the UI post would do.
      * Sets the unlink_flag if there is a temp file.
@@ -283,7 +364,7 @@ class spdx_license_once extends FO_Plugin {
     error_reporting($errlev);
 
     /* For REST API:
-     wget -qO - --post-file=myfile.c http://myserv.com/?mod=agent_nomos_once
+     wget -qO - --post-file=myfile.c http://myserv.com/?mod=spdx_license_once
     */
     if ($this->NoHTML && file_exists($tmp_name))
     {

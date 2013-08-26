@@ -56,8 +56,8 @@ function Spdx_output_attribution($SID) {
 		$lastLicense =$fileInfo['license_concluded'];
 	}	
 	$licenses = array();
-	
-	pg_free_result($result);
+
+  pg_free_result($result);
 	
 	//select license info and license name
 	$sql = "select * from spdx_extracted_lic_info
@@ -68,7 +68,7 @@ function Spdx_output_attribution($SID) {
   
 	while ($fileInfo = pg_fetch_assoc($result))
 	{
-		$licenses[$fileInfo['identifier']] = $fileInfo['licensename'];
+		$licenses[$fileInfo['identifier']] = $fileInfo['license_display_name'];
 	}	
 	
 	foreach ($licenses as $key => $value){
@@ -77,7 +77,7 @@ function Spdx_output_attribution($SID) {
 		$buffer = preg_replace($pattern, $replacement, $buffer);
 	}
 	
-	$fileSuffix = $_SESSION['fileSuffix'];
+  $fileSuffix = $_SESSION['fileSuffix'];
 	if ( strlen($buffer) == 0){
 		$buffer = $NOVALIDINFO;
 	}
