@@ -83,13 +83,19 @@ class spdx_license_once extends FO_Plugin {
   function AnalyzeFile($PackagePath) {
      
     global $SYSCONFDIR;
+    global $PG_CONN;
+    
+    $LICENSE_NOMOS = "License by Nomos.";
+    $NOASSERTION = "NOASSERTION";
     $licenses = array();
 
     $licenseResult = "";
     // unpack package
     $subName = time().rand();
-    // get option ofr recursive unpack the scanning object: true-> recursive unpack; otherwise no recursive unpack;
+    // get option for recursive unpack the scanning object: true-> recursive unpack; otherwise no recursive unpack;
     $recursiveUnpackFlag = GetParm("recursiveUnpack", PARM_STRING);
+    // get option for JSON output format: true-> JSON format; otherwise plain text format;
+    $jsonFlag = GetParm("jsonOutput", PARM_STRING);
     if ($recursiveUnpackFlag == "true")
 		{
 			$ununpackResult = exec("$SYSCONFDIR/mods-enabled/ununpack/agent/ununpack -d $SYSCONFDIR/mods-enabled/spdx/ui/output_file/output_spdx_license_once_$subName -CRX $PackagePath",$out,$rtn);
@@ -125,6 +131,26 @@ class spdx_license_once extends FO_Plugin {
     //$ununpackResult = exec("$SYSCONFDIR/mods-enabled/ununpack/agent/ununpack -d $SYSCONFDIR/mods-enabled/spdx/ui/output_file/output_spdx_license_once_$subName -CRX $PackagePath",$out,$rtn);
     $chmodResult = exec("chmod 777 -R $SYSCONFDIR/mods-enabled/spdx/ui/output_file/output_spdx_license_once_$subName",$out,$rtn);
     $treeResult = $this->tree("$SYSCONFDIR/mods-enabled/spdx/ui/output_file/output_spdx_license_once_$subName");
+    $SPDXLicenseList = array();
+    $nonSPDXLicenseList = array();
+    //list all possible license shortname for licenses in SPDX license list
+    $sql = "select license_identifier as license_name from spdx_license_list
+						union
+						select license_matchname_1 as license_name from spdx_license_list where license_matchname_1 <> ''
+						union
+						select license_matchname_2 as license_name from spdx_license_list where license_matchname_2 <> ''
+						union
+						select license_matchname_3 as license_name from spdx_license_list where license_matchname_3 <> ''";
+		$result = pg_query($PG_CONN, $sql);
+    DBCheckResult($result, $sql, __FILE__, __LINE__);
+    if (pg_num_rows($result) > 0){
+			pg_result_seek($result, 0);
+			while ($SPDXLicense = pg_fetch_assoc($result)) {
+				$SPDXLicenseList[$SPDXLicense['license_name']] = 1;
+			}
+    }
+    pg_free_result($result);
+    
     $licenseArr = array();
     $PIPEArr = array("inode/fifo");
     $SOURCEArr = array("application/x-debian-source",
@@ -174,6 +200,7 @@ class spdx_license_once extends FO_Plugin {
 												"application/x-archive",
 												"application/x-debian-package");
     $copyrightOutputFlag = GetParm("noCopyright", PARM_STRING);
+    $FIndex = 0;
 		foreach($this->FileList as $FilePath)
     {
     	$FilePath = str_replace("//","/",$FilePath);
@@ -203,8 +230,8 @@ class spdx_license_once extends FO_Plugin {
     	//echo "Start to get license\r\n";
     	if ($fileType == "PIPE")
     	{
-    		$licensesInFile = "NOASSERTION";
-    		$copyrightText = "NOASSERTION";
+    		$licensesInFile = $NOASSERTION;
+    		$copyrightText = $NOASSERTION;
     	}
     	else
     	{
@@ -214,10 +241,17 @@ class spdx_license_once extends FO_Plugin {
 			  	if (strpos($licenseInFile,"is not a plain file")=== false)
 			  	{
 				  	$licensesInFile = trim(end(explode('contains license(s)',$licenseInFile))); //delete space
+				  	$licenseInFileArr = explode(',',$licensesInFile);
+				  	foreach($licenseInFileArr as $license) {
+				  		$license_name = trim($license);
+						   if (isset($SPDXLicenseList[$license_name]) === false) {
+							   $nonSPDXLicenseList[$license_name] = $license_name;
+						   }
+						}
 				  }
 				  else
 				  {
-				  	$licensesInFile = "NOASSERTION"; //"is not a plain file"
+				  	$licensesInFile = $NOASSERTION; //"is not a plain file"
 				  }
 			  }
 			  //echo "Gotten license: ".$licensesInFile."\r\n";
@@ -226,7 +260,7 @@ class spdx_license_once extends FO_Plugin {
 				// Get FileCopyrightText
 				if ($copyrightOutputFlag == "true")
 				{
-					$copyrightText = "NOASSERTION";
+					$copyrightText = $NOASSERTION;
 				}
 				else
 				{
@@ -277,14 +311,78 @@ class spdx_license_once extends FO_Plugin {
 				}
 				*/
 			}
-			echo "FileName: ".$fileName."\r\n";
-			echo "FileType: ".$fileType."\r\n";
-			echo "FileChecksum: SHA1: ".strtolower($fileSHA1)."\r\n";
-			echo "LicenseConcluded: NOASSERTION"."\r\n";
-			echo "LicenseInfoInFile: ".$licensesInFile."\r\n";
-			echo "FileCopyrightText: <text>".$copyrightText."</text>"."\r\n";
-			echo "\r\n";
+			if ($jsonFlag == "true")
+			{
+				$FileInfo[$FIndex]['FileName'] = $fileName;
+				$FileInfo[$FIndex]['FileType'] = $fileType;
+				$FileInfo[$FIndex]['FileChecksum'] = strtolower($fileSHA1);
+				$FileInfo[$FIndex]['FileChecksumAlgorithm'] = "SHA1";
+				$FileInfo[$FIndex]['LicenseConcluded'] = $NOASSERTION;
+				$FileInfo[$FIndex]['LicenseInfoInFile'] = $licensesInFile;
+				$FileInfo[$FIndex]['FileCopyrightText'] = "<text>".$copyrightText."</text>";
+				$FIndex = $FIndex + 1;
+			}
+			else
+			{
+				echo "FileName: ".$fileName."\r\n";
+				echo "FileType: ".$fileType."\r\n";
+				echo "FileChecksum: SHA1: ".strtolower($fileSHA1)."\r\n";
+				echo "LicenseConcluded: ".$NOASSERTION."\r\n";
+				echo "LicenseInfoInFile: ".$licensesInFile."\r\n";
+				echo "FileCopyrightText: <text>".$copyrightText."</text>"."\r\n";
+				echo "\r\n";
+			}
 	  }
+	  // Get Extracted License information
+    $ELIndex = 0;
+		//$ExtractedLicenseInfo = array();
+		//$extractedLicenseNameList = "'".implode('\',\'',$nonSPDXLicenseList)."'";
+		if (count($nonSPDXLicenseList)>0)
+		{
+			$extractedLicenseNameList = join(',',$nonSPDXLicenseList);
+			$extractedLicenseNameList = str_replace("'","''",$extractedLicenseNameList);
+		}
+		else
+		{
+			$extractedLicenseNameList = '';
+		}
+		//$sql = "select rf_shortname,rf_text,rf_url from license_ref where rf_shortname in($extractedLicenseNameList)";
+		$sql = "select rf_shortname,rf_text,rf_url from license_ref where rf_shortname in(select regexp_split_to_table('$extractedLicenseNameList', E','))";
+		$resultLicRf = pg_query($PG_CONN, $sql);
+    DBCheckResult($resultLicRf, $sql, __FILE__, __LINE__);
+    if (pg_num_rows($resultLicRf) > 0){
+			pg_result_seek($resultLicRf, 0);
+      while ($ExtractedLicInfo = pg_fetch_assoc($resultLicRf))
+      {
+      	$ExtractedLicenseInfo[$ELIndex]['LicenseName'] = $ExtractedLicInfo['rf_shortname'];
+      	if ($ExtractedLicInfo['rf_text'] == $LICENSE_NOMOS)
+		    {
+		    	$formatedRftest = "Please see online publication for the full text of this license";
+		    }
+		    else
+		    {
+		    	$rule = '/[' . chr ( 1 ) . '-' . chr ( 8 ) . chr ( 11 ) . '-' . chr ( 12 ) . chr ( 14 ) . '-' . chr ( 31 ) . ']*/';
+		    	$formatedRftest = str_replace ( chr ( 0 ), '', preg_replace ( $rule, '', $ExtractedLicInfo['rf_text'] ) );
+		    }
+      	$ExtractedLicenseInfo[$ELIndex]['ExtractedText'] = "<text>".$formatedRftest."</text>";
+      	$ExtractedLicenseInfo[$ELIndex]['LicenseCrossReference'] = $this->IsOptionalItem("",$extractedLicenseInfo["rf_url"],"");
+      	if ($jsonFlag != "true")
+				{
+	      	echo "LicenseName: ".$ExtractedLicenseInfo[$ELIndex]['LicenseName']."\r\n";
+	      	echo "ExtractedText: ".$ExtractedLicenseInfo[$ELIndex]['ExtractedText']."\r\n";
+	      	echo "LicenseCrossReference: ".$ExtractedLicenseInfo[$ELIndex]['LicenseCrossReference']."\r\n";
+	      	echo "\r\n";
+				}
+				$ELIndex = $ELIndex + 1;
+      }
+    }
+    pg_free_result($resultLicRf);
+		if ($jsonFlag == "true")
+		{
+			$jsonOutput = array("file_level_info"=>$FileInfo,"extracted_license_info"=>$ExtractedLicenseInfo);
+			$jsonOutputString = json_encode($jsonOutput);
+			echo $jsonOutputString;
+		}
 	  exec("rm -R $SYSCONFDIR/mods-enabled/spdx/ui/output_file/output_spdx_license_once_$subName",$out,$rtn);
     return;
 
@@ -384,6 +482,17 @@ class spdx_license_once extends FO_Plugin {
 		fwrite($fh,$buffer."\n");
 		fclose($fh);
 	}
+  function IsOptionalItem($label1,$v,$label2)
+  {
+    if (!empty($v))
+    {
+      return $label1.$v.$label2;
+    }
+    else
+    {
+      return '';
+    }
+  }
 };
 $NewPlugin = new spdx_license_once;
 ?>
