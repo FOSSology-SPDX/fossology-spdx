@@ -5,7 +5,7 @@
 include Makefile.conf
 
 # the directories we do things in by default
-DIRS= src
+DIRS= utils src
 
 # create lists of targets for various operations
 # these are phony targets (declared at bottom) of convenience so we can
@@ -31,6 +31,20 @@ VERSIONFILE:
 install: all $(INSTALLDIRS)
 $(INSTALLDIRS):
 	$(MAKE) -s -C $(@:install-%=%) install
+	@echo "Making configuration directories"
+	@if [ ! -e $(DESTDIR)$(SYSCONFDIR) ] ; then \
+		mkdir -p $(DESTDIR)$(SYSCONFDIR); \
+	fi
+	@echo "Making output_file directorie"
+	@if [ ! -e $(DESTDIR)$(OUTPUT_FILE) ] ; then \
+		mkdir -p $(DESTDIR)$(OUTPUT_FILE); \
+		/bin/chmod 777 $(DESTDIR)$(OUTPUT_FILE); \
+	fi
+	@echo "Making log directorie"
+	@if [ ! -e $(DESTDIR)$(LOGDIR) ] ; then \
+		mkdir -p $(DESTDIR)$(LOGDIR); \
+		/bin/chmod 777 $(DESTDIR)$(LOGDIR); \
+	fi
 
 uninstall: $(UNINSTALLDIRS)
 $(UNINSTALLDIRS):

@@ -1,0 +1,85 @@
+#!/bin/bash
+# FOSSology+SPDX postinstall script
+# Copyright (C) 2013 University of Nebraska at Omaha.
+#
+# This script is for things that need to be done on the runtime system
+# after we've installed the bits on the filesystem. It needs to be
+# idempotent, meaning that running it repeatedly will still do the
+# right thing, regardless of the success of previous runs.
+
+## Options parsing and setup
+# parse options
+OPTS=`getopt -o eh --long everything,help -n 'fossyspdx-postinstall' -- "$@"`
+
+if [ $? != 0 ]; then
+   echo "ERROR: Bad option specified."
+   OPTS="--help"
+fi
+
+eval set -- "$OPTS"
+
+# if no options or just -o then do everything
+if [ "$OPTS" = " --" -o "$OPTS" = " -o --" ]; then
+   EVERYTHING=1
+fi
+
+while true; do
+   case "$1" in
+      -w|--web-only) WEBONLY=1; shift;;
+      -e|--everything) EVERYTHING=1; shift;;
+      -h|--help)
+         echo "Usage: fo-postinstall [options]";
+         echo "  -w or --web-only   : web interface specific actions"
+         echo "  -e or --everything : all actions, default"
+         echo "  -h or --help       : this help text"
+         exit;;
+      --) shift; break;;
+      *) echo "Error: option $1 not recognised"; exit 1;;
+   esac
+done
+
+if [ $EVERYTHING ]; then
+   echo "*** Running postinstall for everything ***"
+   COMMON=1
+fi
+
+# This must run as root.
+if [ `id -u` != "0" ] ; then
+   echo "ERROR: fossyspdx-postinstall must run as root."
+   echo "Aborting."
+   exit 1
+fi
+
+if [ $COMMON ]; then
+   echo "*** Running postinstall for common actions***"
+
+   ## get path to repo
+   if [ -e "{$SYSCONFDIR}/fossologyspdx.conf" ] ; then
+      while read line; do
+      if [[ $line =~ "path = " ]]; then
+          REPO=$\{line//'path = '/\}
+      fi
+      done < '{$SYSCONFDIR}/fossologyspdx.conf'
+   else
+      echo "ERROR: Cannot find {$SYSCONFDIR}/fossologyspdx.conf"
+      exit 1
+   fi
+
+   echo "*** initialize the configuration ***"
+   {$LIBEXECDIR}/fossyspdxinit.php -c {$SYSCONFDIR}
+fi
+# Create the command line realtime scanning log directory.
+if [ -f {$LOGDIR} ] ; then
+ # Must be a directory and not a file
+ rm -f {$LOGDIR}
+fi
+if [ ! -d {$LOGDIR} ] ; then
+ mkdir -p {$LOGDIR}
+fi
+chown -R {$PROJECTUSER}:{$PROJECTGROUP} {$LOGDIR}
+chmod 2775 {$LOGDIR}
+find {$LOGDIR} -type f | while read i ; do chmod 660 "$i" ; done
+########################################################################
+
+echo "FOSSology+SPDX postinstall complete, but sure to complete the remaining"
+echo "  steps in the INSTALL instructions."

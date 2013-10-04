@@ -4,8 +4,8 @@ Introduction
 ============
 This document is designed to help you get FOSSologySPDX installed and ready
 to use. As of now, there are 2 ways to install FOSSologySPDX. You can install it 
-from scratch on top of an instance of FOSSology, or you can make a new instance of 
-FOSSologySPDX on Amazon Web Services.
+from scratch on top of an instance of FOSSology(latest version are ensured), 
+or you can make a new instance of FOSSologySPDX on Amazon Web Services.
 
 ===========================================
 The following are instructions if you are installing the module on top of an already 
@@ -18,18 +18,33 @@ Section 3 - After Module Installation
 Section 1
 ===========================================
 (In examples, # is as root, $ is mortal)
-Before you FOSSologySPDX, you need install FOSSology firstly. 
+Before you FOSSologySPDX, you need install FOSSology first. 
 You can find the discussion on how to install or use the FOSSology software,
 please see the Documentation, available at 
-http://www.fossology.org/projects/fossology/wiki/User_Documentation. 
+http://www.fossology.org/projects/fossology/wiki/SysConfigSrc. 
 
-1. If you have any old FOSSologySPDX installs you want to remove from the
+1. If you have any old FOSSologySPDX php code installed you want to remove from the
    system you can run
    # make uninstall
    If you have an existing install that you want to transition, be sure to
    back up your PHP pages, repository, database, and config files before proceeding.
-2. Install FOSSologySPDX
+
+   If you have any old FOSSologySPDX installs(configuration files, log files and database) you want to remove from
+   the system you can run the fossyspdx-cleanold script
+   # utils/fossyspdx-cleanold
+
+2. Install FOSSologySPDX   
+   Installation need Perl Text/Template.pm to generate configuration file.
+   You may need install Perl Text/Template.pm by running "$perl -MCPAN -e 'install Text::Template' "
+   
    # make install
+   
+   Move to [db] folder
+   # ./fossyspdx-createdb
+   
+   Run FOSSology+SPDX postinstall script
+   # /usr/lib/fossology/fossyspdx-postinstall
+
 
 You're done, point your web browser at the new install
 (http://yourhostname/repo/) and start using FOSSologySPDX!
@@ -39,12 +54,44 @@ Section 2 - Installation Instructions for database
 ===========================================
 (In examples, # is as root, $ is mortal)
 After you install FOSSology database, 
-please refer to README under [db] folder to establish tables.
+please refer to README under [db] folder to establish FOSSology+SPDX tables manually.
+You can also run the following line to create tables in FOSSology database automatically.
+# ./fossyspdx-createdb
 
 
 Section 3 - After Installation
 ==============================
 Congratulations, FOSSologySPDX is now installed!
+
+You might want to tune your system to fit the work, the following you may need to consider:
+
+Configure and tune the configuration files
+   ->Configuring PHP
+   Some php config variables may need to be adjusted for FOSSology+SPDX. We don't
+   provide an automated way to do this because it can be specific to your
+   particular install if you are using php for other things. Edit your
+   php.ini file for apache (location dependent on your install, but
+   probably something like /etc/php5/apache2/php.ini) and make adjustments
+   that will work for your system and usage. Here are some things to
+   consider:
+   *max_execution_time = 36000
+   This controls how long, in seconds, a php process is allowed to run.
+   For particularly large jobs, or if your system is slow you may need to increase this.
+   *memory_limit = 702M
+   *post_max_size = 701M
+   *upload_max_filesize = 700M
+   ->Configuring FOSSology+SPDX folder(default setting is suggested)
+   fossologyspdx.conf(location dependent on your install, but probably like /etc/fossology/fossologyspdx.conf)
+   Here are some things to consider:
+
+   # project logdir
+   LOGDIR controls where log files are put(now, only when the process running spdx_license_once.php
+    with 'packageNameInLog' setting will generate log)
+
+   # project output_file dir
+   OUTPUT_FILE controls where the temporary files are generated during the process 
+   of generating SPDX file(tag,notice, etc) in Web UI
+
 
 You can now point your web browser at the new install
 (http://yourhostname/repo/) and start using FOSSology!
@@ -55,8 +102,13 @@ password and:
 2) change the default password for user fossy
 3) customize (if desired) your FOSSology website using the directions at 
 http://www.fossology.org/projects/fossology/wiki/Config-How_to_Configure_the_FOSSology_site
-4) generate SPDX file under menu [SPDX]
+4) generate SPDX file under menu [SPDX] or 
+   access command line API to real-time scan license information in SPDX spec 
 ===========================================
+
+
+
+
 ===========================================
 The following are instructions if you are creating a new instance of FOSSologySPDX from 
 the Amazon Web Service image.

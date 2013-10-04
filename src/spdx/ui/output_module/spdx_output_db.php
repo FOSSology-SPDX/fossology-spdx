@@ -20,6 +20,8 @@ function Spdx_output_attribution($SID) {
 	include('../../../lib/php/common-db.php');
 	$PG_CONN =  DBconnect("/etc/fossology/"); // install from package
   //$PG_CONN =  DBconnect("/usr/local/etc/fossology/"); // install from source
+  getGlobalEnv("/etc/fossology/");
+  global $OUTPUT_FILE;
 	$UNKNOWN = 'UNKNOWN';
 	$NONE = 'NONE';
 	$LICENSE_NOMOS="License by Nomos.";
@@ -82,7 +84,8 @@ function Spdx_output_attribution($SID) {
 		$buffer = $NOVALIDINFO;
 	}
 	//write tag file
-	WriteFile($buffer,'/../output_file/attribution'.$fileSuffix.'.csv');
+	//WriteFile($buffer,'/../output_file/attribution'.$fileSuffix.'.csv');
+	WriteFile($buffer,$OUTPUT_FILE.'/attribution'.$fileSuffix.'.csv');
 }
 
 function checkCsvQuotes($string) {
@@ -101,6 +104,8 @@ function Spdx_output_notice($SID) {
 	include('../../../lib/php/common-db.php');
 	$PG_CONN =  DBconnect("/etc/fossology/"); // install from package
   //$PG_CONN =  DBconnect("/usr/local/etc/fossology/"); // install from source
+  getGlobalEnv("/etc/fossology/");
+  global $OUTPUT_FILE;
 	$UNKNOWN = 'UNKNOWN';
 	$NONE = 'NONE';
 	$LICENSE_NOMOS="License by Nomos.";
@@ -149,7 +154,8 @@ function Spdx_output_notice($SID) {
 		$buffer = $NOVALIDINFO;
 	}
 	//write NOTICE1 file
-	WriteFile($buffer,'/../output_file/NOTICE'.$fileSuffix);
+	//WriteFile($buffer,'/../output_file/NOTICE'.$fileSuffix);
+	WriteFile($buffer,$OUTPUT_FILE.'/NOTICE'.$fileSuffix);
 }
 function Spdx_output_notice2($SID) {
 	session_id($SID);
@@ -157,6 +163,8 @@ function Spdx_output_notice2($SID) {
 	include('../../../lib/php/common-db.php');
 	$PG_CONN =  DBconnect("/etc/fossology/"); // install from package
   //$PG_CONN =  DBconnect("/usr/local/etc/fossology/"); // install from source
+  getGlobalEnv("/etc/fossology/");
+  global $OUTPUT_FILE;
 	$UNKNOWN = 'UNKNOWN';
 	$NONE = 'NONE';
 	$LICENSE_NOMOS="License by Nomos.";
@@ -223,7 +231,8 @@ function Spdx_output_notice2($SID) {
 		$buffer = $NOVALIDINFO;
 	}
 	//write NOTICE2 file
-	WriteFile($buffer,'/../output_file/NOTICE2'.$fileSuffix);
+	//WriteFile($buffer,'/../output_file/NOTICE2'.$fileSuffix);
+	WriteFile($buffer,$OUTPUT_FILE.'/NOTICE2'.$fileSuffix);
 }
 function Spdx_output_tag($SID) {
 	session_id($SID);
@@ -231,6 +240,10 @@ function Spdx_output_tag($SID) {
 	include('../../../lib/php/common-db.php');
 	$PG_CONN =  DBconnect("/etc/fossology/"); // install from package
   //$PG_CONN =  DBconnect("/usr/local/etc/fossology/"); // install from source
+  //global $OUTPUT_FILE;
+  //$OUTPUT_FILE = getenv('OUTPUT_FILE');
+  getGlobalEnv("/etc/fossology/");
+  global $OUTPUT_FILE;
 	$UNKNOWN = 'UNKNOWN';
 	$NONE = 'NONE';
 	$LICENSE_NOMOS="License by Nomos.";
@@ -382,11 +395,13 @@ function Spdx_output_tag($SID) {
 		$buffer = $NOVALIDINFO;
 	}
 	//write tag file
-	WriteFile($buffer,'/../output_file/spdx'.$fileSuffix.'.tag');
+	//WriteFile($buffer,'/../output_file/spdx'.$fileSuffix.'.tag');
+	WriteFile($buffer,$OUTPUT_FILE.'/spdx'.$fileSuffix.'.tag');
 }
 function WriteFile($buffer,$filename)
 {
-	$file = dirname(__FILE__).$filename;
+	//$file = dirname(__FILE__).$filename;
+	$file = $filename;
 	touch($file);
 	$fh = fopen($file,'w');
 	fwrite($fh,$buffer);
@@ -443,5 +458,65 @@ function IsOptionalItem($label1,$v,$label2)
   {
   	return '';
   }
+}
+//copy from bootstrap.php
+function getGlobalEnv($sysconfdir="")
+{
+  $rcfile = "fossology.rc";
+
+  if (empty($sysconfdir))
+  {
+    $sysconfdir = getenv('SYSCONFDIR');
+    if ($sysconfdir === false)
+    {
+      if (file_exists($rcfile)) $sysconfdir = file_get_contents($rcfile);
+      if ($sysconfdir === false)
+      {
+        /* NO SYSCONFDIR specified */
+        $text = _("FATAL! System Configuration Error, no SYSCONFDIR.");
+        echo "$text\n";
+        exit(1);
+      }
+    }
+  }
+
+  $sysconfdir = trim($sysconfdir);
+  $GLOBALS['SYSCONFDIR'] = $sysconfdir;
+
+  /*************  Parse fossologyspdx.conf *******************/
+  $ConfFile = "{$sysconfdir}/fossologyspdx.conf";
+  if (!file_exists($ConfFile))
+  {
+    $text = _("FATAL! Missing configuration file: $ConfFile");
+    echo "$text\n";
+    exit(1);
+  }
+  $SysConf = parse_ini_file($ConfFile, true);
+  if ($SysConf === false)
+  {
+    $text = _("FATAL! Invalid configuration file: $ConfFile");
+    echo "$text\n";
+    exit(1);
+  }
+
+  /* evaluate all the DIRECTORIES group for variable substitutions.
+   * For example, if PREFIX=/usr/local and BINDIR=$PREFIX/bin, we
+   * want BINDIR=/usr/local/bin
+   */
+  foreach($SysConf['DIRECTORIES'] as $var=>$assign)
+  {
+    /* Evaluate the individual variables because they may be referenced
+     * in subsequent assignments.
+     */
+    $toeval = "\$$var = \"$assign\";";
+    eval($toeval);
+
+    /* now reassign the array value with the evaluated result */
+    $SysConf['DIRECTORIES'][$var] = ${$var};
+    $GLOBALS[$var] = ${$var};
+  }
+  require_once("$MODDIR/www/ui/template/template-plugin.php");
+  require_once("$MODDIR/lib/php/common.php");
+  return $SysConf;
 }
 ?>
