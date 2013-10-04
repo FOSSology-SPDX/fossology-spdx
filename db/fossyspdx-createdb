@@ -1,0 +1,29 @@
+#!/bin/bash
+# fossyspdx create database table in fossology database script
+# Copyright (C) 2013 University of Nebraska at Omaha.
+#
+# This script checks to see if the the fossologyspdx table exists
+# in fossology database and if not then creates it.
+
+echo "*** Setting up the FOSSology+SPDX database ***"
+
+
+# first check that postgres is running
+su postgres -c 'echo \\q|psql'
+if [ $? != 0 ]; then
+   echo "ERROR: postgresql isn't running"
+   exit 1
+fi
+
+# then check to see if the table already exists
+su postgres -c "psql fossology -c \"select * from information_schema.tables where table_name like 'spdx%';\""|grep spdx
+if [ $? = 0 ]; then
+   echo "NOTE: fossologyspdx tables already exist in fossology database, not creating"
+else
+   echo "*** Creating tables ***"
+   su postgres -c "cat spdx_extracted_lic_info_create.sql spdx_file_create.sql spdx_file_info_create.sql spdx_license_list_create.sql spdx_license_list_insert.sql spdx_package_info_create.sql spdx_review_ref_create.sql|psql -d fossology -U fossy -1 -f -"
+   if [ $? != 0 ] ; then
+      echo "ERROR: Database failed during configuration.\n"
+      exit 1
+   fi
+fi

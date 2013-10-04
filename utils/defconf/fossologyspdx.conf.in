@@ -1,0 +1,29 @@
+; this is a simple key-value configuration file
+;   DIRECTORIES: basic configurations path
+
+[DIRECTORIES]
+#project name
+PROJECT_SPDX=fossologyspdx
+
+; Project Name and Group 
+; Do not change after installation since PROJECT and PROJECTGROUP is used in installation 
+; directory names and ownership.
+; Use PREFIX to install multiple copies of FOSSology.
+PROJECT={$PROJECT}
+PROJECTGROUP={$PROJECTGROUP}
+
+; base of the program data tree
+PREFIX={$PREFIX}
+
+; non-arch-specific data
+DATAROOTDIR=$PREFIX/share
+
+; non-arch-dependent program data
+MODDIR=$DATAROOTDIR/$PROJECT
+
+# project logdir
+LOGDIR=/var/log/$PROJECT_SPDX
+
+# project output_file dir
+OUTPUT_FILE=/tmp/$PROJECT_SPDX
+

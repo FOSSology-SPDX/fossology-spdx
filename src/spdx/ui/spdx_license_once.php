@@ -35,6 +35,7 @@ class spdx_license_once extends FO_Plugin {
   public $LoginFlag  = 0;
   public $FileList = array();
   public $copyrightOutputFlag = "";
+  public $logOutputFlag = "ON";
 	
   /**
    * \biref travers all files in unpacked component.
@@ -88,7 +89,9 @@ class spdx_license_once extends FO_Plugin {
     $LICENSE_NOMOS = "License by Nomos.";
     $NOASSERTION = "NOASSERTION";
     $licenses = array();
-
+		$this->getGlobalEnv($SYSCONFDIR);
+	  global $OUTPUT_FILE;
+	  global $LOGDIR;
     $licenseResult = "";
     // unpack package
     $subName = time().rand();
@@ -96,41 +99,56 @@ class spdx_license_once extends FO_Plugin {
     $recursiveUnpackFlag = GetParm("recursiveUnpack", PARM_STRING);
     // get option for JSON output format: true-> JSON format; otherwise plain text format;
     $jsonFlag = GetParm("jsonOutput", PARM_STRING);
+    $outputfile_path = $OUTPUT_FILE;
+    $logOutputFlag = "ON";
+    $packageName = GetParm("packageNameInLog", PARM_STRING);
+    if(empty($packageName))
+    {
+    	//$packageName = "Anonym".date("Y-m-dH:i:s", time()); 
+    	$logOutputFlag = "OFF";
+    }
+    $logFile = $LOGDIR."/".$packageName.".log";
+    $logText = "Package is being processed from now\t[Package Name]:\t".$packageName;
+    $this->WriteLogFile($logText, $logFile);
     if ($recursiveUnpackFlag == "true")
 		{
-			$ununpackResult = exec("$SYSCONFDIR/mods-enabled/ununpack/agent/ununpack -d $SYSCONFDIR/mods-enabled/spdx/ui/output_file/output_spdx_license_once_$subName -CRX $PackagePath",$out,$rtn);
+			$ununpackResult = exec("$SYSCONFDIR/mods-enabled/ununpack/agent/ununpack -d $outputfile_path/output_spdx_license_once_$subName -CRX $PackagePath",$out,$rtn);
+	    $logText = "unpack package finished\t[Package Name]:\t".$packageName;
+	    $this->WriteLogFile($logText, $logFile);
 		}
 		else
 		{
-	    exec("mkdir $SYSCONFDIR/mods-enabled/spdx/ui/output_file/output_spdx_license_once_$subName",$out,$rtn);
+	    exec("mkdir $outputfile_path/output_spdx_license_once_$subName",$out,$rtn);
 	    unset($rtn);
 	    // unpack gz file
-	    exec("tar -zxvf $PackagePath -C $SYSCONFDIR/mods-enabled/spdx/ui/output_file/output_spdx_license_once_$subName",$out,$rtn);
+	    exec("tar -zxvf $PackagePath -C $outputfile_path/output_spdx_license_once_$subName",$out,$rtn);
 	    if ($rtn != 0)
 	    {
 	    	// unpack bz2 file
-	    	exec("tar -jxvf $PackagePath -C $SYSCONFDIR/mods-enabled/spdx/ui/output_file/output_spdx_license_once_$subName",$out,$rtn);
+	    	exec("tar -jxvf $PackagePath -C $outputfile_path/output_spdx_license_once_$subName",$out,$rtn);
 	    	if ($rtn != 0)
 	    	{
 	    		// unpack tar file
-	    		exec("tar -xvf $PackagePath -C $SYSCONFDIR/mods-enabled/spdx/ui/output_file/output_spdx_license_once_$subName",$out,$rtn);
+	    		exec("tar -xvf $PackagePath -C $outputfile_path/output_spdx_license_once_$subName",$out,$rtn);
 	    		if ($rtn != 0)
 	    		{
 	    			// unpack zip file
-	    			exec("unzip $PackagePath -d $SYSCONFDIR/mods-enabled/spdx/ui/output_file/output_spdx_license_once_$subName",$out,$rtn);
+	    			exec("unzip $PackagePath -d $outputfile_path/output_spdx_license_once_$subName",$out,$rtn);
 	    			if ($rtn != 0)
 	    			{
 	    				echo "FATAL: your file does not belong to specific type.  Make sure this your file belongs to gz,bz2,zip or tar format.";
-				    	exec("rm -R $SYSCONFDIR/mods-enabled/spdx/ui/output_file/output_spdx_license_once_$subName",$out,$rtn);
+ 					    $logText = "FATAL: your file does not belong to specific type.  Make sure this your file belongs to gz,bz2,zip or tar format.";
+              $this->WriteLogFile($logText, $logFile);
+				    	exec("rm -R $outputfile_path/output_spdx_license_once_$subName",$out,$rtn);
 				    	return;
 	    			}
 	    		}
 	    	}
 	    }
 		}
-    //$ununpackResult = exec("$SYSCONFDIR/mods-enabled/ununpack/agent/ununpack -d $SYSCONFDIR/mods-enabled/spdx/ui/output_file/output_spdx_license_once_$subName -CRX $PackagePath",$out,$rtn);
-    $chmodResult = exec("chmod 777 -R $SYSCONFDIR/mods-enabled/spdx/ui/output_file/output_spdx_license_once_$subName",$out,$rtn);
-    $treeResult = $this->tree("$SYSCONFDIR/mods-enabled/spdx/ui/output_file/output_spdx_license_once_$subName");
+    //$ununpackResult = exec("$SYSCONFDIR/mods-enabled/ununpack/agent/ununpack -d $outputfile_path/output_spdx_license_once_$subName -CRX $PackagePath",$out,$rtn);
+    $chmodResult = exec("chmod 777 -R $outputfile_path/output_spdx_license_once_$subName",$out,$rtn);
+    $treeResult = $this->tree("$outputfile_path/output_spdx_license_once_$subName");
     $SPDXLicenseList = array();
     $nonSPDXLicenseList = array();
     //list all possible license shortname for licenses in SPDX license list
@@ -201,9 +219,14 @@ class spdx_license_once extends FO_Plugin {
 												"application/x-debian-package");
     $copyrightOutputFlag = GetParm("noCopyright", PARM_STRING);
     $FIndex = 0;
+    $FileCount = count($this->FileList);
+    $currentFileNumber = 0;
 		foreach($this->FileList as $FilePath)
     {
+    	$currentFileNumber = $currentFileNumber + 1;
     	$FilePath = str_replace("//","/",$FilePath);
+    	// Get FileName
+			$fileName = basename($FilePath);
     	// Get FileType
 			$fileType = $this->get_file_type($FilePath);
 	    if (in_array($fileType,$SOURCEArr))
@@ -235,7 +258,11 @@ class spdx_license_once extends FO_Plugin {
     	}
     	else
     	{
+		    $logText = "license scanning started.\t[".$currentFileNumber."/".$FileCount."][File Name]:\t".$fileName;
+        $this->WriteLogFile($logText, $logFile);
 	    	$licenseResult = exec("$SYSCONFDIR/mods-enabled/nomos/agent/nomos $FilePath",$licenseOut,$rtn);
+		    $logText = "license scanning finished.\t[".$currentFileNumber."/".$FileCount."][File Name]:\t".$fileName;
+        $this->WriteLogFile($logText, $logFile);
 	    	foreach($licenseOut as $licenseInFile)
 			  {
 			  	if (strpos($licenseInFile,"is not a plain file")=== false)
@@ -266,7 +293,11 @@ class spdx_license_once extends FO_Plugin {
 				{
 		
 					$copyrightOut = array();
+   		    $logText = "copyright scanning started.\t[".$currentFileNumber."/".$FileCount."][File Name]:\t".$fileName;
+          $this->WriteLogFile($logText, $logFile);
 					$copyrightResult = exec("$SYSCONFDIR/mods-enabled/copyright/agent/copyright -C $FilePath",$copyrightOut,$rtn);
+			    $logText = "copyright scanning finished.\t[".$currentFileNumber."/".$FileCount."][File Name]:\t".$fileName;
+          $this->WriteLogFile($logText, $logFile);
 					$copyrightText = "";
 					foreach($copyrightOut as $copyrightInFile)
 					  {
@@ -294,8 +325,6 @@ class spdx_license_once extends FO_Plugin {
 					}
 				}
 			}
-			// Get FileName
-			$fileName = basename($FilePath);
 			// Get SHA1
 			if ($fileType == "PIPE")
 			{
@@ -383,7 +412,9 @@ class spdx_license_once extends FO_Plugin {
 			$jsonOutputString = json_encode($jsonOutput);
 			echo $jsonOutputString;
 		}
-	  exec("rm -R $SYSCONFDIR/mods-enabled/spdx/ui/output_file/output_spdx_license_once_$subName",$out,$rtn);
+    $logText = "Package has been processed\t[Package Name]:\t".$packageName;
+    $this->WriteLogFile($logText, $logFile);
+	  exec("rm -R $outputfile_path/output_spdx_license_once_$subName",$out,$rtn);
     return;
 
   } // AnalyzeFile()
@@ -474,12 +505,19 @@ class spdx_license_once extends FO_Plugin {
     }
     return;
   }
-  function WriteFile($buffer,$filename)
+  function WriteLogFile($buffer,$filename)
 	{
+		//only when user identify package name, log will be written for it
+		if (!($this->logOutputFlag == "ON"))
+		{
+			return;
+		}
 		$file = $filename;
 		touch($file);
 		$fh = fopen($file,'a+');
-		fwrite($fh,$buffer."\n");
+		//$logTime = @date('[d/M/Y:H:i:s]');
+		$logTime = date("Y-m-d H:i:s");
+		fwrite($fh,$logTime." ".$buffer.PHP_EOL);
 		fclose($fh);
 	}
   function IsOptionalItem($label1,$v,$label2)
@@ -493,6 +531,66 @@ class spdx_license_once extends FO_Plugin {
       return '';
     }
   }
+  //copy from bootstrap.php
+	function getGlobalEnv($sysconfdir="")
+	{
+	  $rcfile = "fossology.rc";
+	
+	  if (empty($sysconfdir))
+	  {
+	    $sysconfdir = getenv('SYSCONFDIR');
+	    if ($sysconfdir === false)
+	    {
+	      if (file_exists($rcfile)) $sysconfdir = file_get_contents($rcfile);
+	      if ($sysconfdir === false)
+	      {
+	        /* NO SYSCONFDIR specified */
+	        $text = _("FATAL! System Configuration Error, no SYSCONFDIR.");
+	        echo "$text\n";
+	        exit(1);
+	      }
+	    }
+	  }
+	
+	  $sysconfdir = trim($sysconfdir);
+	  $GLOBALS['SYSCONFDIR'] = $sysconfdir;
+	
+	  /*************  Parse fossologyspdx.conf *******************/
+	  $ConfFile = "{$sysconfdir}/fossologyspdx.conf";
+	  if (!file_exists($ConfFile))
+	  {
+	    $text = _("FATAL! Missing configuration file: $ConfFile");
+	    echo "$text\n";
+	    exit(1);
+	  }
+	  $SysConf = parse_ini_file($ConfFile, true);
+	  if ($SysConf === false)
+	  {
+	    $text = _("FATAL! Invalid configuration file: $ConfFile");
+	    echo "$text\n";
+	    exit(1);
+	  }
+	
+	  /* evaluate all the DIRECTORIES group for variable substitutions.
+	   * For example, if PREFIX=/usr/local and BINDIR=$PREFIX/bin, we
+	   * want BINDIR=/usr/local/bin
+	   */
+	  foreach($SysConf['DIRECTORIES'] as $var=>$assign)
+	  {
+	    /* Evaluate the individual variables because they may be referenced
+	     * in subsequent assignments.
+	     */
+	    $toeval = "\$$var = \"$assign\";";
+	    eval($toeval);
+	
+	    /* now reassign the array value with the evaluated result */
+	    $SysConf['DIRECTORIES'][$var] = ${$var};
+	    $GLOBALS[$var] = ${$var};
+	  }
+	  require_once("$MODDIR/www/ui/template/template-plugin.php");
+	  require_once("$MODDIR/lib/php/common.php");
+	  return $SysConf;
+	}
 };
 $NewPlugin = new spdx_license_once;
 ?>

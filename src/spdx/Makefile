@@ -22,7 +22,7 @@ include $(VARS)
 
 DIRS = ui
 MOD_NAME=spdx
-OUPPUT_FILE_FOLDER_NAME=output_file
+#OUPPUT_FILE_FOLDER_NAME=output_file
 
 #dirloop=for dir in $(DIRS); do $(MAKE) -s -C $$dir $(1);  done
 
@@ -44,7 +44,7 @@ install: all
 		mkdir $(DESTDIR)$(PREFIX_SRC)$(DATAROOTDIR)/$(UIDIR); \
 		rsync -av ./ui/* $(DESTDIR)$(PREFIX_SRC)$(DATAROOTDIR)/$(UIDIR); \
 		chown -R fossy.fossy $(DESTDIR)$(PREFIX_SRC)$(DATAROOTDIR)/$(MODDIR)/*; \
-		chmod 777 $(DESTDIR)$(PREFIX_SRC)$(DATAROOTDIR)/$(UIDIR)/$(OUPPUT_FILE_FOLDER_NAME); \
+		#chmod 777 $(DESTDIR)$(PREFIX_SRC)$(DATAROOTDIR)/$(UIDIR)/$(OUPPUT_FILE_FOLDER_NAME); \
 		ln -s $(DESTDIR)$(PREFIX_SRC)$(DATAROOTDIR)/$(MODDIR)/$(MOD_NAME) $(DESTDIR)$(INITDIR)/$(PROJECT)/mods-enabled/$(MOD_NAME); \
 		ln -s $(DESTDIR)$(PREFIX_SRC)$(DATAROOTDIR)/$(MODDIR)/$(MOD_NAME)/ui/output_module $(DESTDIR)$(PREFIX_SRC)$(DATAROOTDIR)/$(WEBDIR)/ui/spdx-output-module; \
 	else \
@@ -54,7 +54,7 @@ install: all
 		#@rsync -av ./ui/* $(DESTDIR)/usr/fossology/spdx/ui; \
 		rsync -av ./ui/* $(DESTDIR)$(PREFIX)$(DATAROOTDIR)/$(UIDIR); \
 		chown -R fossy.fossy $(DESTDIR)$(PREFIX)$(DATAROOTDIR)/$(MODDIR)/*; \
-		chmod 777 $(DESTDIR)$(PREFIX)$(DATAROOTDIR)/$(UIDIR)/$(OUPPUT_FILE_FOLDER_NAME); \
+		#chmod 777 $(DESTDIR)$(PREFIX)$(DATAROOTDIR)/$(UIDIR)/$(OUPPUT_FILE_FOLDER_NAME); \
 		#ln -s /usr/share/fossology/spdx /etc/fossology/mods-enabled/spdx; \
 		#ln -s /usr/share/fossology/spdx/ui/spdx /usr/share/fossology/www/ui/spdx; \
 		ln -s $(DESTDIR)$(PREFIX)$(DATAROOTDIR)/$(MODDIR)/$(MOD_NAME) $(DESTDIR)$(INITDIR)/$(PROJECT)/mods-enabled/$(MOD_NAME); \
