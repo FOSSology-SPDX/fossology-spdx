@@ -30,6 +30,9 @@ spdx_extracted_lic_info_create.sql
 spdx_review_ref_create.sql
 spdx_license_list_create.sql
 
+Command Could be:
+su postgres -c "psql -d fossology -U fossy -a -f <sql script>"
+
 Insert records
 ==============
 Running the following script to create records in spdx_license_list table(spdx_license_list is a prerequisite)

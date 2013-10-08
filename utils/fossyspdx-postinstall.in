@@ -55,6 +55,8 @@ if [ $COMMON ]; then
 
    ## get path to repo
    if [ -e "{$SYSCONFDIR}/fossologyspdx.conf" ] ; then
+      chown {$PROJECTUSER}:{$PROJECTGROUP} {$SYSCONFDIR}/fossologyspdx.conf
+      chmod 664 {$SYSCONFDIR}/fossologyspdx.conf
       while read line; do
       if [[ $line =~ "path = " ]]; then
           REPO=$\{line//'path = '/\}
