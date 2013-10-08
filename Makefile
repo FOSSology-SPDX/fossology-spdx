@@ -35,12 +35,12 @@ $(INSTALLDIRS):
 	@if [ ! -e $(DESTDIR)$(SYSCONFDIR) ] ; then \
 		mkdir -p $(DESTDIR)$(SYSCONFDIR); \
 	fi
-	@echo "Making output_file directorie"
+	@echo "Making output_file directory"
 	@if [ ! -e $(DESTDIR)$(OUTPUT_FILE) ] ; then \
 		mkdir -p $(DESTDIR)$(OUTPUT_FILE); \
 		/bin/chmod 777 $(DESTDIR)$(OUTPUT_FILE); \
 	fi
-	@echo "Making log directorie"
+	@echo "Making log directory"
 	@if [ ! -e $(DESTDIR)$(LOGDIR) ] ; then \
 		mkdir -p $(DESTDIR)$(LOGDIR); \
 		/bin/chmod 777 $(DESTDIR)$(LOGDIR); \
