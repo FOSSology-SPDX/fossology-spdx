@@ -34,8 +34,9 @@ http://www.fossology.org/projects/fossology/wiki/SysConfigSrc.
    # utils/fossyspdx-cleanold
 
 2. Install FOSSologySPDX   
-   Installation need Perl Text/Template.pm to generate configuration file.
-   You may need install Perl Text/Template.pm by running "$perl -MCPAN -e 'install Text::Template' "
+   ***Installation need Perl Text/Template.pm to generate configuration file***.
+   You may need install Perl Text/Template.pm by running "$perl -MCPAN -e 'install Text::Template' " or
+   "yum install perl-Text-Template"
    
    # make install
    
