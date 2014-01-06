@@ -34,13 +34,26 @@ http://www.fossology.org/projects/fossology/wiki/SysConfigSrc.
    # utils/fossyspdx-cleanold
 
 2. Install FOSSologySPDX   
-   ***Installation need Perl Text/Template.pm to generate configuration file***.
-   You may need install Perl Text/Template.pm by running "$perl -MCPAN -e 'install Text::Template' " or
+   ***Installation need Perl Text/Template.pm to generate configuration file.***
+   You may need install Perl Text/Template.pm by running 
+   "$perl -MCPAN -e 'install Text::Template' " or 
    "yum install perl-Text-Template"
    
    # make install
    
-   Move to [db] folder
+   Move to [db] folder and create datatables
+   ***Installation need Postgresql to be configured and running.***
+   You may need to confirm that pg_hba.conf file contains the following line
+   to let Unix domain socket could be accessed successfully.
+      # TYPE  DATABASE        USER            ADDRESS                 METHOD
+      local   all             all                                     trust
+   or
+      # TYPE  DATABASE        USER            ADDRESS                 METHOD
+      local   all             all                                     md5
+   P.S. Since "ident" method "Obtain the operating system user name of the client 
+   by contacting the ident server on the client and check if it matches the requested 
+   database user name.", it mostly does not work here if you do not set up those user names.   
+   
    # ./fossyspdx-createdb
    
    Run FOSSology+SPDX postinstall script
