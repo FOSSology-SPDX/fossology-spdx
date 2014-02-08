@@ -99,6 +99,8 @@ class spdx_license_once extends FO_Plugin {
     $recursiveUnpackFlag = GetParm("recursiveUnpack", PARM_STRING);
     // get option for JSON output format: true-> JSON format; otherwise plain text format;
     $jsonFlag = GetParm("jsonOutput", PARM_STRING);
+    // get option for full SPDX TAG output : true-> full SPDX TAG format; otherwise file and extracted license sectors information in SPDX specification;
+    $fullSPDXFlag = GetParm("fullSPDXFlag", PARM_STRING);
     $outputfile_path = $OUTPUT_FILE;
     $logOutputFlag = "ON";
     $packageName = GetParm("packageNameInLog", PARM_STRING);
@@ -118,6 +120,7 @@ class spdx_license_once extends FO_Plugin {
 		}
 		else
 		{
+			exec("mkdir $outputfile_path",$out,$rtn);
 	    exec("mkdir $outputfile_path/output_spdx_license_once_$subName",$out,$rtn);
 	    unset($rtn);
 	    // unpack gz file
@@ -340,18 +343,15 @@ class spdx_license_once extends FO_Plugin {
 				}
 				*/
 			}
-			if ($jsonFlag == "true")
-			{
-				$FileInfo[$FIndex]['FileName'] = $fileName;
-				$FileInfo[$FIndex]['FileType'] = $fileType;
-				$FileInfo[$FIndex]['FileChecksum'] = strtolower($fileSHA1);
-				$FileInfo[$FIndex]['FileChecksumAlgorithm'] = "SHA1";
-				$FileInfo[$FIndex]['LicenseConcluded'] = $NOASSERTION;
-				$FileInfo[$FIndex]['LicenseInfoInFile'] = $licensesInFile;
-				$FileInfo[$FIndex]['FileCopyrightText'] = "<text>".$copyrightText."</text>";
-				$FIndex = $FIndex + 1;
-			}
-			else
+			$FileInfo[$FIndex]['FileName'] = $fileName;
+			$FileInfo[$FIndex]['FileType'] = $fileType;
+			$FileInfo[$FIndex]['FileChecksum'] = strtolower($fileSHA1);
+			$FileInfo[$FIndex]['FileChecksumAlgorithm'] = "SHA1";
+			$FileInfo[$FIndex]['LicenseConcluded'] = $NOASSERTION;
+			$FileInfo[$FIndex]['LicenseInfoInFile'] = $licensesInFile;
+			$FileInfo[$FIndex]['FileCopyrightText'] = "<text>".$copyrightText."</text>";
+			$FIndex = $FIndex + 1;
+			if (($fullSPDXFlag != "true") && ($jsonFlag != "true"))
 			{
 				echo "FileName: ".$fileName."\r\n";
 				echo "FileType: ".$fileType."\r\n";
@@ -395,7 +395,7 @@ class spdx_license_once extends FO_Plugin {
 		    }
       	$ExtractedLicenseInfo[$ELIndex]['ExtractedText'] = "<text>".$formatedRftest."</text>";
       	$ExtractedLicenseInfo[$ELIndex]['LicenseCrossReference'] = $this->IsOptionalItem("",$extractedLicenseInfo["rf_url"],"");
-      	if ($jsonFlag != "true")
+      	if (($fullSPDXFlag != "true") && ($jsonFlag != "true"))
 				{
 	      	echo "LicenseName: ".$ExtractedLicenseInfo[$ELIndex]['LicenseName']."\r\n";
 	      	echo "ExtractedText: ".$ExtractedLicenseInfo[$ELIndex]['ExtractedText']."\r\n";
@@ -406,12 +406,21 @@ class spdx_license_once extends FO_Plugin {
       }
     }
     pg_free_result($resultLicRf);
-		if ($jsonFlag == "true")
+    if (($fullSPDXFlag == "true")&&($jsonFlag != "true"))
+    {
+    	if(empty($FileInfo))
+    	{
+    		echo "No file level information found\r\n";
+    	}
+    	echo $this->GegerateSPDXTAG($PackagePath ,$FileInfo, $ExtractedLicenseInfo);
+    }
+    else if ($jsonFlag == "true")
 		{
 			$jsonOutput = array("file_level_info"=>$FileInfo,"extracted_license_info"=>$ExtractedLicenseInfo);
 			$jsonOutputString = json_encode($jsonOutput);
 			echo $jsonOutputString;
 		}
+
     $logText = "Package has been processed\t[Package Name]:\t".$packageName;
     $this->WriteLogFile($logText, $logFile);
 	  exec("rm -R $outputfile_path/output_spdx_license_once_$subName",$out,$rtn);
@@ -505,6 +514,228 @@ class spdx_license_once extends FO_Plugin {
     }
     return;
   }
+  function GegerateSPDXTAG($packageFile, $files, $extractedLicenses)
+	{
+		$NOASSERTION = "NOASSERTION";
+		$buffer = "";
+		$buffer = $buffer."SPDXVersion: SPDX-1.1\r\n";
+		$buffer = $buffer."DataLicense: CC0-1.0\r\n";
+		$buffer = $buffer."DocumentComment: <text></text>\r\n";
+		$buffer = $buffer."\r\n## Creation Information\r\n";
+		$buffer = $buffer."Creator: Tool: FOSSology+SPDX command line\r\n";
+		$createdDate = Date("Y-m-d")."T".Date("H:i:s")."Z";
+		$buffer = $buffer."Created: ".$createdDate."\r\n";
+		$buffer = $buffer."CreatorComment: <text></text>\r\n";
+		$buffer = $buffer."\r\n## Package Information\r\n";
+		
+		$packageName = GetParm("packageNameInLog", PARM_STRING);
+		$buffer = $buffer."PackageName: ".$packageName."\r\n";
+		$buffer = $buffer."PackageVersion: \r\n";
+		$buffer = $buffer."PackageDownloadLocation: ".$NOASSERTION."\r\n";
+		$buffer = $buffer."PackageSummary: <text></text>\r\n";
+		$buffer = $buffer.$this->IsOptionalItem("PackageSourceInfo: ","","\r\n");
+		$buffer = $buffer."PackageFileName: \r\n";
+		$buffer = $buffer."PackageSupplier: ".$NOASSERTION."\r\n";
+		$buffer = $buffer."PackageOriginator: ".$NOASSERTION."\r\n";
+		$buffer = $buffer."PackageChecksum: SHA1: ".strtolower(sha1_file($packageFile))."\r\n";
+		$verificationcode_excludedfiles = "*.spdx";
+		$buffer = $buffer."PackageVerificationCode: ".$this->getVerificationCode($files,$verificationcode_excludedfiles);
+		$buffer = $buffer."(excludes: ".$verificationcode_excludedfiles.")\r\n";
+		$buffer = $buffer."PackageDescription: <text></text>\r\n\r\n";
+		$buffer = $buffer."PackageCopyrightText: <text>".$NOASSERTION."</text>\r\n\r\n";
+		$packageLicenseInfoFromFilesArr = array();
+		if(!empty($files))
+		{
+			foreach($files as $file)
+			{
+				$licensesInFile = $file['LicenseInfoInFile'];
+		  	$licenseInFileArr = explode(',',$licensesInFile);
+		  	foreach($licenseInFileArr as $license) {
+		  		$license_name = trim($license);
+				   if (isset($packageLicenseInfoFromFilesArr[$license_name]) === false) {
+					   $packageLicenseInfoFromFilesArr[$license_name] = $license_name;
+				   }
+				}
+			}
+		}
+		$LicenseRefIndex = 1;
+		$extractedLicensesWithRefIndex = array();
+		if(!empty($extractedLicenses))
+		{
+			foreach($extractedLicenses as $extractedLicense)
+			{
+				$extractedLicense['LicenseID'] = "";
+				if ((isset($packageLicenseInfoFromFilesArr[$extractedLicense['LicenseName']])) ===true) {
+					$packageLicenseInfoFromFilesArr[$extractedLicense['LicenseName']] = "LicenseRef-".$LicenseRefIndex;
+					$extractedLicense['LicenseID'] = "LicenseRef-".$LicenseRefIndex;
+					$LicenseRefIndex = $LicenseRefIndex + 1;
+				}
+				$extractedLicensesWithRefIndex[] = $extractedLicense;
+			}
+		}
+		$packageLicenseDeclared = trim(implode(' and ', $packageLicenseInfoFromFilesArr));
+		if (empty($packageLicenseDeclared))
+		{
+			
+			$buffer = $buffer."PackageLicenseDeclared: NONE\r\n";
+		}
+		else
+		{
+			$buffer = $buffer."PackageLicenseDeclared: ".$this->IsNONEParenthesis($packageLicenseDeclared)."\r\n";
+		}
+		
+		$buffer = $buffer."PackageLicenseConcluded: ".$NOASSERTION."\r\n";
+		if (count($packageLicenseInfoFromFilesArr)>0)
+		{
+			foreach ($packageLicenseInfoFromFilesArr as $packageLicenseInfoFromFiles)
+			{
+				if (!empty($packageLicenseInfoFromFiles))
+				{
+					$buffer = $buffer."PackageLicenseInfoFromFiles: ".$packageLicenseInfoFromFiles."\r\n";
+				}
+			}
+		}
+		else
+		{
+			$buffer = $buffer."PackageLicenseInfoFromFiles: NONE\r\n";
+		}
+		$buffer = $buffer."PackageLicenseComments: <text></text>\r\n";
+		
+		//File Information
+		$buffer = $buffer."\r\n## File Information\r\n";
+		if(!empty($files))
+		{
+			foreach($files as $fileInfo)
+		  {
+		  	$buffer = $buffer."\r\nFileName: ".$fileInfo["FileName"]."\r\n";
+				$buffer = $buffer."FileType: ".$fileInfo["FileType"]."\r\n";
+				$buffer = $buffer."FileChecksum: SHA1: ".strtolower($fileInfo["FileChecksum"])."\r\n";
+				$buffer = $buffer."LicenseConcluded: ".$this->IsNONEParenthesis($fileInfo["LicenseConcluded"])."\r\n";
+		
+				$licenseInfoInFileArr = explode(",",$fileInfo["LicenseInfoInFile"]);
+				if (count($licenseInfoInFileArr)>0 )
+				{
+					foreach ($licenseInfoInFileArr as $licenseInfoInFile)
+					{
+						
+						foreach($extractedLicensesWithRefIndex as $extractedLicense)
+						{
+							if ($licenseInfoInFile == $extractedLicense['LicenseName']) {
+								$licenseInfoInFile = $extractedLicense['LicenseID'];
+							}
+						}
+						$buffer = $buffer.'LicenseInfoInFile: '.$licenseInfoInFile."\r\n";
+					}
+				}
+				else
+				{
+					$buffer = $buffer."LicenseInfoInFile: NONE\r\n";
+				}
+				$buffer = $buffer."FileCopyrightText: ".$this->IsNONE($fileInfo["FileCopyrightText"])."\r\n";
+				$buffer = $buffer.$this->IsOptionalItem('ArtifactOfProjectName: ',$fileInfo["artifact_of_project"],"\r\n");
+				$buffer = $buffer.$this->IsOptionalItem('ArtifactOfProjectHomePage: ',$fileInfo["artifact_of_homepage"],"\r\n");
+				$buffer = $buffer.$this->IsOptionalItem('ArtifactOfProjectURI: ',$fileInfo["artifact_of_url"],"\r\n");
+				$buffer = $buffer.$this->IsOptionalItem('FileComment: <text>',$fileInfo["file_comment"],"</text>\r\n");
+		  }
+		}
+	  //License Information
+		$buffer = $buffer."\r\n## License Information\r\n";
+		foreach ($extractedLicensesWithRefIndex as $extractedLicenseInfo)
+	  {
+	    $buffer = $buffer."\r\nLicenseID: ".$extractedLicenseInfo["LicenseID"]."\r\n";
+			$buffer = $buffer.'ExtractedText: '.$extractedLicenseInfo["ExtractedText"]."\r\n";
+			$buffer = $buffer.'LicenseName: '.$extractedLicenseInfo["LicenseName"]."\r\n";
+			$buffer = $buffer.$this->IsOptionalItem('LicenseCrossReference: ',$extractedLicenseInfo["LicenseCrossReference"],"\r\n");
+			$buffer = $buffer.$this->IsOptionalItem('LicenseComment: ',$extractedLicenseInfo["LicenseComment"],"\r\n");
+	  }
+		return $buffer;
+	}
+	function IsNONE($v)
+	{
+	  if (!empty($v))
+	  {
+	    return $v;
+	  }
+	  else
+	  {
+	  	return 'NONE';
+	  }
+	}
+	function IsNONEParenthesis($v)
+	{
+	  if (!empty($v))
+	  {
+	  	$lower = strtolower($v);
+			if ((count(explode(" or ",$lower))>1) || (count(explode(" and ",$lower))>1))
+			{
+				return "(".$v.")";
+			}
+			else
+			{
+				return $v;
+			}
+	  }
+	  else
+	  {
+	  	return 'NONE';
+	  }
+	}
+	function getVerificationCode($files,$excludedfiles) {
+		if(!empty($files))
+		{
+			foreach ($files as $row)
+			{
+				if (empty($excludedfiles))
+				{
+					$templist[] = $row['FileChecksum'];
+				}
+				else
+				{
+					//get excluded files
+					$excludedfileArr = explode(",",$excludedfiles);
+					$match = false;
+					foreach ($excludedfileArr as $excludedfile)
+					{
+						//check if *.suffix, e.g. *.spdx
+						if(substr($excludedfile,0,2) =="*.")
+						{
+							if ( substr($excludedfile,2) == substr(strrchr($row['FileName'],"."),1))
+							{
+								$match = true;
+							}
+						}
+						else
+						{
+							//check full path
+							if ($excludedfile == $row['FileName'])
+							{
+								$match = true;
+							}
+						}
+					}
+					if ($match == false)
+					{
+						$templist[] = $row['FileChecksum'];
+					}
+				}
+			}
+		}
+		if(empty($templist))
+		{
+			$filelist = "";
+		}
+		else
+		{
+			sort($templist);
+			$num = count($templist); 
+			for($i=0;$i < $num;++$i)
+			{ 
+				$filelist = $filelist.$templist[$i]; 
+			}
+		} 
+		$verificationCode = SHA1(strtolower($filelist));
+		return $verificationCode;
+	}
   function WriteLogFile($buffer,$filename)
 	{
 		//only when user identify package name, log will be written for it
