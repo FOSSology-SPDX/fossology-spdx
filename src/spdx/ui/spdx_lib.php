@@ -564,7 +564,8 @@ function Spdx_insert_update_spdx() {
   					$LicStr = $NOASSERTION;
   					$fileLicenseInfoInFile = $LicStr;
   				}
-  				$fileLicenseConcluded = $LicStr;
+  				//$fileLicenseConcluded = $LicStr;
+				$fileLicenseConcluded = $NOASSERTION;	//file level license concluded is set "NOASSERTION" by default
   				
 		      $sql = "SELECT ct_pk, content 
             from copyright
