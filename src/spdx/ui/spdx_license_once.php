@@ -446,12 +446,13 @@ class spdx_license_once extends FO_Plugin {
     else {
       $ThisMod = 0;
     }
-	  /*
+    /*
      * This if stmt is true only for wget.
      * For wget, populate the $_FILES array, just like the UI post would do.
      * Sets the unlink_flag if there is a temp file.
      */
-    if ($ThisMod && ($_SERVER['REQUEST_METHOD'] == "POST"))
+    //if ($ThisMod && ($_SERVER['REQUEST_METHOD'] == "POST"))
+    if ($ThisMod)
     {
     	$Fin = fopen("php://input", "r");
       $Ftmp = tempnam(NULL, "fosslic-spdx-package-level-");
@@ -468,8 +469,17 @@ class spdx_license_once extends FO_Plugin {
        */
       if (filesize($Ftmp) > 0)
       {
+      	//loading from put method
       	$_FILES['licfile']['tmp_name'] = $Ftmp;
         $_FILES['licfile']['size'] = filesize($Ftmp);
+        $_FILES['licfile']['unlink_flag'] = 1;
+        $this->NoHTML = 1;
+      }
+      else if ($_FILES["file"]["error"] <= 0)
+      {
+      	//loading curl
+      	$_FILES['licfile']['tmp_name'] = $_FILES["file"]["tmp_name"];
+        $_FILES['licfile']['size'] = $_FILES["file"]["size"];
         $_FILES['licfile']['unlink_flag'] = 1;
         $this->NoHTML = 1;
       }
