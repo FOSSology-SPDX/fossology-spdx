@@ -109,7 +109,8 @@ class spdx_main_page_input extends FO_Plugin
 								from upload , uploadtree
 								where upload_pk = upload_fk
 											and parent is null
-								GROUP BY pfile_pk";
+								GROUP BY pfile_pk
+								ORDER BY pkg_name";
         $result = pg_query($PG_CONN, $sql);
         DBCheckResult($result, $sql, __FILE__, __LINE__);
         $text = _("Package(s)");
