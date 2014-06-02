@@ -105,12 +105,12 @@ class spdx_main_page_input extends FO_Plugin
         $V.= "<tr><td colspan='3' style='background:black;'></td></tr>\n";
         $V.= "</table><P/>";
         /* Get the list of packages */
-        $sql = "select uploadtree.pfile_fk as pfile_pk, max(upload_origin||'('||upload_desc||')') as pkg_name, max(uploadtree_pk) as uploadtree_pk
-								from upload , uploadtree
-								where upload_pk = upload_fk
-											and parent is null
-								GROUP BY pfile_pk
-								ORDER BY pkg_name";
+        $sql = "select uploadtree.pfile_fk as pfile_pk, max(upload_origin||'('||upload_desc||')') as pkg_name, max(uploadtree_pk) as uploadtree_pk,upload.upload_ts
+                                                                from upload , uploadtree
+                                                                where upload_pk = upload_fk
+                                                                                        and parent is null
+                                                                GROUP BY pfile_pk,upload_ts
+								ORDER BY upload.upload_ts desc limit 25";
         $result = pg_query($PG_CONN, $sql);
         DBCheckResult($result, $sql, __FILE__, __LINE__);
         $text = _("Package(s)");
