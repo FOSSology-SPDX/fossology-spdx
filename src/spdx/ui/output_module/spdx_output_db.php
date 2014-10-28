@@ -515,7 +515,7 @@ function getGlobalEnv($sysconfdir="")
     $SysConf['DIRECTORIES'][$var] = ${$var};
     $GLOBALS[$var] = ${$var};
   }
-  require_once("$MODDIR/www/ui/template/template-plugin.php");
+  //require_once("$MODDIR/www/ui/template/template-plugin.php");
   require_once("$MODDIR/lib/php/common.php");
   return $SysConf;
 }
