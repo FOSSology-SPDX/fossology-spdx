@@ -828,7 +828,7 @@ class spdx_license_once extends FO_Plugin {
 	    $SysConf['DIRECTORIES'][$var] = ${$var};
 	    $GLOBALS[$var] = ${$var};
 	  }
-	  //require_once("$MODDIR/www/ui/template/template-plugin.php");
+	  require_once("$MODDIR/www/ui/template/template-plugin.php");
 	  require_once("$MODDIR/lib/php/common.php");
 	  return $SysConf;
 	}
