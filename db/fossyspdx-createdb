@@ -23,7 +23,7 @@ else
    echo "*** Creating tables ***"
    su postgres -c "cat spdx_extracted_lic_info_create.sql spdx_file_create.sql spdx_file_info_create.sql spdx_license_list_create.sql spdx_license_list_insert.sql spdx_package_info_create.sql spdx_review_ref_create.sql|psql -d fossology -U fossy -1 -f -"
    if [ $? != 0 ] ; then
-      echo "ERROR: Database failed during configuration.\n"
+      echo "ERROR: Database failed during configuration."
       exit 1
    fi
 fi
